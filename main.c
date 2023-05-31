@@ -22,7 +22,7 @@ int main(int argc, char const *argv[]) {
     const char * filename;
     DIR* dir;
     FILE* file; 
-    int k;
+    int k, n;
 
     if(argc != 5){
         printf("Wrong number of arguments\n");
@@ -47,6 +47,12 @@ int main(int argc, char const *argv[]) {
         return 1;
     }
 
+    n = checkFileCount(dir);
+    if(n < k){
+        printf("Directory must contain at least k = %d .bmp images\n", k);
+        closedir(dir);
+    }
+
     if(strcmp(argv[1], "d") == 0){
         file = fopen(filename, "r");
 
@@ -58,11 +64,6 @@ int main(int argc, char const *argv[]) {
         // TODO: Encode
 
     } else if (strcmp(argv[1], "r") == 0){
-
-        if(checkFileCount(dir) < k){
-            printf("Directory must contain at least k = %d .bmp images\n", k);
-            closedir(dir);
-        }
 
         // TODO: Recover
     } else {
