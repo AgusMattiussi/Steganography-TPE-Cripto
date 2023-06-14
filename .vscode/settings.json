@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "stdio.h": "c",
-        "bmp.h": "c"
+        "bmp.h": "c",
+        "shadowgen.h": "c"
     }
 }

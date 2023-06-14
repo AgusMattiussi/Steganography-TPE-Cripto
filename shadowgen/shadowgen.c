@@ -1,12 +1,8 @@
-#include <math.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdio.h>
+#include "shadowgen.h"
 
 #define GROUP_SIZE 251
 #define MAX_K 8
 
-void generateShadows(FILE * image, int k, int n, int width, int height);
 static void blockSubshadow(FILE * image, uint8_t ** vm,
  uint8_t ** vd, int k, int n, int blockNum);
 static int generateB(uint8_t a, int r);

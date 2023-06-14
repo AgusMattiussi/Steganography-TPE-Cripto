@@ -4,6 +4,8 @@
 #include <dirent.h>
 #include <errno.h>
 #include <time.h>
+#include "shadowgen/shadowgen.h"
+#include "bmpReader/bmp.h"
 
 /*
  Parametros:

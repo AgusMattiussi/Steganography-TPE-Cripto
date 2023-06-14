@@ -8,6 +8,8 @@
  * Bitmap file header
  * source: https://gist.github.com/takatoh/9d141ee9a7cc8a1f4a5e#file-bmp-c
  */
+#ifndef _BMP_H
+#define _BMP_H
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,3 +53,5 @@ typedef struct tagBITMAPCOREHEADER {
 
 
 int readHeaderSetOffet(FILE * image);
+
+#endif
