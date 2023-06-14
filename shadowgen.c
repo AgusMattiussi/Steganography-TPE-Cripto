@@ -3,24 +3,24 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define P 251
+#define GROUP_SIZE 251
+#define MAX_K 8
 
-void generateShadows(uint8_t ** image, int k, int n, int width, int height);
-static void blockSubshadow(uint8_t ** image, uint8_t ** vm,
- uint8_t ** vd, int k, int n, int blockNum, int * iter, int width);
+void generateShadows(FILE * image, int k, int n, int width, int height);
+static void blockSubshadow(FILE * image, uint8_t ** vm,
+ uint8_t ** vd, int k, int n, int blockNum);
 static int generateB(uint8_t a, int r);
 static int generateR();
 
-void generateShadows(uint8_t ** image, int k, int n, int width, int height) {
+void generateShadows(FILE * image, int k, int n, int width, int height) {
     // t = block count
     int t = (width*height) / (2*k - 2);
     uint8_t ** vm = calloc(t * n, sizeof(uint8_t));
     uint8_t ** vd = calloc(t * n, sizeof(uint8_t));
-    int iter = 0;
 
     for (int i = 0; i < t; i++) {
         // TODO: Dividir en bloques la imagen
-        blockSubshadow(image, vm, vd, k, n, i, &iter, width);
+        blockSubshadow(image, vm, vd, k, n, i);
     }
     
     uint8_t shadows[n][2*t];
@@ -33,7 +33,7 @@ void generateShadows(uint8_t ** image, int k, int n, int width, int height) {
     }
 
     // Para que no tire warning por no usar variables
-    printf("%d %d", shadows[0][0], iter);
+    printf("%hhx", shadows[0][0]);
 }
 
 
@@ -43,44 +43,44 @@ void generateShadows(uint8_t ** image, int k, int n, int width, int height) {
 
 */
 
-static void blockSubshadow(uint8_t ** image, uint8_t ** vm, uint8_t ** vd,
- int k, int n, int blockNum, int * iter, int width) {
+static void blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd,
+ int k, int n, int blockNum) {
 
     int resultF = 0;
+    uint8_t buffer[MAX_K];
+
+    fread(buffer, k, sizeof(uint8_t), image);
     for (int j = 1; j <= n; j++) {
         for (int d = 0; d <= k - 1; d++) {
-            resultF += (image[*iter / width][*iter % width] % P) *  pow((double) j, (double) d);
-            (*iter)++;
+            resultF += buffer[d] *  pow((double) j, (double) d);
         }
-        vm[blockNum][j] = resultF;
+        vm[blockNum][j] = resultF % GROUP_SIZE;
     }
 
     int r = generateR();
-    uint8_t a0 = image[*iter / width][*iter % width];
-    uint8_t a1 = image[*iter / width][(*iter + 1) % width];
-    uint8_t b0 = generateB(a0, r);
-    uint8_t b1 = generateB(a1, r);
+
+    uint8_t b0 = generateB(buffer[0], r);
+    uint8_t b1 = generateB(buffer[1], r);
     
+    fread(buffer, k-2, sizeof(uint8_t), image);
     int resultG = 0;
     for (int j = 1; j <= n; j++) {
         resultG += b0 + b1*j;
         for (int d = 2; d <= k - 1; d++) {
-            resultG += (image[*iter / width][(d + *iter) % width] % P) *  pow((double) j, (double) d);
-            vd[blockNum][j] = resultG;
-            (*iter)++;
+            resultG += buffer[d - 2] *  pow((double) j, (double) d);
         }
-        vd[blockNum][j] = resultG;
+        vd[blockNum][j] = resultG % GROUP_SIZE;
     }
 
 }
 
 static int generateB(uint8_t a, int r) {
     uint8_t aux = a == 0 ? 1 : a;
-    return -(r*aux) % P;
+    return -(r*aux) % GROUP_SIZE;
 }
 
 // [1, 250]
 static int generateR() {
-    return (rand() % (P-1)) + 1;
+    return (rand() % (GROUP_SIZE-1)) + 1;
 }
 
