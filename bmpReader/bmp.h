@@ -50,8 +50,4 @@ typedef struct tagBITMAPCOREHEADER {
 } BITMAPCOREHEADER;
 
 
-BITMAPFILEHEADER *ReadBMFileHeader(FILE *fp);
-BITMAPINFOHEADER *ReadBMInfoHeader(FILE *fp);
-BITMAPCOREHEADER *ReadBMCoreHeader(FILE *fp);
-
-int SizeOfInformationHeader(FILE *fp);
+int readHeaderSetOffet(FILE * image);

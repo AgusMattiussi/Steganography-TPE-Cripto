@@ -7,14 +7,17 @@
 
 #include "bmp.h"
 
-
-unsigned short ReadLE2(FILE *fp);
-unsigned int ReadLE4(FILE *fp);
+static int SizeOfInformationHeader(FILE *fp);
+static BITMAPFILEHEADER *ReadBMFileHeader(FILE *fp);
+static BITMAPCOREHEADER *ReadBMCoreHeader(FILE *fp);
+static BITMAPINFOHEADER *ReadBMInfoHeader(FILE *fp);
+static unsigned short ReadLE2(FILE *fp);
+static unsigned int ReadLE4(FILE *fp);
 
 /*
  * Read bitmap file header
  */
-BITMAPFILEHEADER *ReadBMFileHeader(FILE *fp)
+static BITMAPFILEHEADER *ReadBMFileHeader(FILE *fp)
 {
     BITMAPFILEHEADER *header;
     char           filetype[3] = {'\0', '\0', '\0'};
@@ -51,7 +54,7 @@ BITMAPFILEHEADER *ReadBMFileHeader(FILE *fp)
 /*
  * Returns size of information header
  */
-int SizeOfInformationHeader(FILE *fp)
+static int SizeOfInformationHeader(FILE *fp)
 {
     int headersize;
     unsigned char buf[4];
@@ -70,7 +73,7 @@ int SizeOfInformationHeader(FILE *fp)
 /*
  * Read bitmap core header (OS/2 bitmap)
  */
-BITMAPCOREHEADER *ReadBMCoreHeader(FILE *fp)
+static BITMAPCOREHEADER *ReadBMCoreHeader(FILE *fp)
 {
     BITMAPCOREHEADER *header;
     unsigned int   headersize;
@@ -107,7 +110,7 @@ BITMAPCOREHEADER *ReadBMCoreHeader(FILE *fp)
 /*
  * Read bitmap info header (Windows bitmap)
  */
-BITMAPINFOHEADER *ReadBMInfoHeader(FILE *fp)
+static BITMAPINFOHEADER *ReadBMInfoHeader(FILE *fp)
 {
     BITMAPINFOHEADER *header;
     unsigned int   headersize;
@@ -174,7 +177,7 @@ BITMAPINFOHEADER *ReadBMInfoHeader(FILE *fp)
 /*
  * Read 2 bytes in little endian
  */
-unsigned short ReadLE2(FILE *fp)
+static unsigned short ReadLE2(FILE *fp)
 {
     unsigned char buf[2];
     unsigned short result = 0;
@@ -191,7 +194,7 @@ unsigned short ReadLE2(FILE *fp)
 /*
  * Read 4 bytes in little endian
  */
-unsigned int ReadLE4(FILE *fp)
+static unsigned int ReadLE4(FILE *fp)
 {
     unsigned char buf[4];
     unsigned int result = 0;
@@ -203,4 +206,56 @@ unsigned int ReadLE4(FILE *fp)
     }
 
     return result;
+}
+
+int readHeaderSetOffet(FILE * image){
+    BITMAPFILEHEADER *bmFileHeader = NULL;
+    bmFileHeader = ReadBMFileHeader(image);
+    fseek(image, bmFileHeader->bfOffBits, SEEK_SET);
+    // TODO: Chequear errores, tamanio de imagen etc
+    return 1;
+}
+
+void printBmpInfo(FILE * image){
+    BITMAPFILEHEADER *bmFileHeader = NULL;
+    BITMAPCOREHEADER *bmCoreHeader = NULL;
+    BITMAPINFOHEADER *bmInfoHeader = NULL;
+    int headersize;
+
+    bmFileHeader = ReadBMFileHeader(image);
+    if (strcmp(bmFileHeader->bfType, "BM") != 0) {
+        printf("The file is not BITMAP.\n");
+        return;
+    }
+    headersize = SizeOfInformationHeader(image);
+    if (headersize == 12) {
+        bmCoreHeader = ReadBMCoreHeader(image);
+    } else if (headersize == 40) {
+        bmInfoHeader = ReadBMInfoHeader(image);
+    } else {
+        printf("Unsupported BITMAP.\n");
+        return;
+    }
+
+    printf("File type          = %s\n", bmFileHeader->bfType);
+    printf("File size          = %d bytes\n", bmFileHeader->bfSize);
+    printf("Data offset        = %ld bytes\n", bmFileHeader->bfOffBits);
+    if (headersize == 12) {
+        printf("Info header size   = %d bytes\n", bmCoreHeader->bcSize);
+        printf("Width              = %d pixels\n", bmCoreHeader->bcWidth);
+        printf("Height             = %d pixels\n", bmCoreHeader->bcHeight);
+        printf("Planes             = %d\n", bmCoreHeader->bcPlanes);
+        printf("Bit count          = %d bits/pixel\n", bmCoreHeader->bcBitCount);
+    } else if (headersize == 40) {
+        printf("Info header size   = %d bytes\n", bmInfoHeader->biSize);
+        printf("Width              = %ld pixels\n", bmInfoHeader->biWidth);
+        printf("Height             = %ld pixels\n", bmInfoHeader->biHeight);
+        printf("Planes             = %d\n", bmInfoHeader->biPlanes);
+        printf("Bit count          = %d bits/pixel\n", bmInfoHeader->biBitCount);
+        printf("Compression        = %d\n", bmInfoHeader->biCompression);
+        printf("Size image         = %d bytes\n", bmInfoHeader->biSizeImage);
+        printf("X pixels per meter = %ld\n", bmInfoHeader->biXPixPerMeter);
+        printf("Y pixels per meter = %ld\n", bmInfoHeader->biYPixPerMeter);
+        printf("Color used         = %ld colors\n", bmInfoHeader->biClrUsed);
+    }
 }

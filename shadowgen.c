@@ -83,3 +83,4 @@ static int generateB(uint8_t a, int r) {
 static int generateR() {
     return (rand() % (P-1)) + 1;
 }
+

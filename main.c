@@ -73,7 +73,13 @@ int main(int argc, char const *argv[]) {
         return EXIT_FAILURE;
     }
 
-    
+    /*  //TODO:
+    free(bmFileHeader);
+    free(bmCoreHeader);
+    free(bmInfoHeader);
+    fclose(imagen); 
+    */
+
     fclose(file);
     closedir(dir);
 
