@@ -6,6 +6,6 @@
 #include <stdint.h>
 #include <stdio.h>
 
-void generateShadows(FILE * image, int k, int n, int width, int height);
+void generateShadows(FILE * image, int k, int n, long width, long height);
 
 #endif

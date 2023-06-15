@@ -208,10 +208,41 @@ static unsigned int ReadLE4(FILE *fp)
     return result;
 }
 
-int readHeaderSetOffet(FILE * image){
+int readHeaderSetOffet(FILE * image, long * width, long * heigth){
     BITMAPFILEHEADER *bmFileHeader = NULL;
+    BITMAPCOREHEADER *bmCoreHeader = NULL;
+    BITMAPINFOHEADER *bmInfoHeader = NULL;
+    int headersize;
+
     bmFileHeader = ReadBMFileHeader(image);
+    headersize = SizeOfInformationHeader(image);
+    if (headersize == 12) {
+        bmCoreHeader = ReadBMCoreHeader(image);
+    } else if (headersize == 40) {
+        bmInfoHeader = ReadBMInfoHeader(image);
+    } else {
+        printf("Unsupported BITMAP.\n");
+        return -1;
+    }
+
+    *width = headersize == 40 ? bmInfoHeader->biWidth : (long) bmCoreHeader->bcWidth;
+    *heigth = headersize == 40 ? bmInfoHeader->biHeight : (long) bmCoreHeader->bcHeight;
+
     fseek(image, bmFileHeader->bfOffBits, SEEK_SET);
+
+    //TODO: Delete
+    char buffer[100];
+    printf("\n ===== First 100 bytes ====\n");
+    fread(buffer, sizeof(char), 100, image);
+    for (size_t i = 1; i <= 100; i++){
+        printf("%hhx ", buffer[i-1]);
+        if(i % 10 == 0)
+            printf("\n");
+    }
+    printf(" ========================== \n\n");
+    
+    fseek(image, bmFileHeader->bfOffBits, SEEK_SET);
+
     // TODO: Chequear errores, tamanio de imagen etc
     return 1;
 }

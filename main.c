@@ -26,7 +26,7 @@ int main(int argc, char const *argv[]) {
     const char * filename;
     DIR* dir;
     FILE* file; 
-    int k, n;
+    int k, n = 0;
 
     if(argc != 5){
         printf("Wrong number of arguments\n");
@@ -53,7 +53,7 @@ int main(int argc, char const *argv[]) {
 
     n = checkFileCount(dir);
     if(n < k){
-        printf("Directory must contain at least k = %d .bmp images\n", k);
+        printf("Directory must contain at least k = %d .bmp images (contains %d)\n", k, n);
         closedir(dir);
     }
 
@@ -64,8 +64,11 @@ int main(int argc, char const *argv[]) {
             printf("Image file does not exist\n");
             return EXIT_FAILURE;
         }
+        
+        long width, heigth;
 
-        // TODO: Encode
+        readHeaderSetOffet(file, &width, &heigth);
+        generateShadows(file, k, n, width, heigth);
 
     } else if (strcmp(argv[1], "r") == 0){
 
@@ -100,13 +103,22 @@ const int checkFileCount(DIR * dir){
     struct dirent * entry;
     int count = 0;
 
+    // Salteo los directorios '.' y '..'
+    entry = readdir(dir);
+    entry = readdir(dir);
+
+    printf("Reading entries...\n");
     while ((entry = readdir(dir)) != NULL) {
-        if(strcmp("bmp", get_filename_ext(entry->d_name)) != 0)
+        printf("Entry Name: %s\n", entry->d_name);
+        if(strcmp("bmp", get_filename_ext(entry->d_name)) != 0){
+            printf("file %d is not bmp\n", count + 1);
             return -1;
+        }
         if (entry->d_type == DT_REG) {
             count++;
         }
     }
+    printf("\n =============================== \n");
 
     return count;   
 }
