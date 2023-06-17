@@ -119,14 +119,11 @@ const int checkFileCount(DIR * dir){
 
     printf("Reading entries...\n");
     while ((entry = readdir(dir)) != NULL) {
-        if(strcmp("..", entry->d_name) == 0 || strcmp(".", entry->d_name) == 0){
-            // Salteo los directorios '.' y '..'
-        }
-        else if(strcmp("bmp", get_filename_ext(entry->d_name)) != 0 ){
-            printf("file %d is not bmp\n", count + 1);
-            return -1;
-        }
-        if (entry->d_type == DT_REG) {
+        if(entry->d_type == DT_REG){
+            if(strcmp("bmp", get_filename_ext(entry->d_name)) != 0 ){
+                printf("file %d is not bmp\n", count + 1);
+                return -1;
+            }
             printf("Entry Name: %s\n", entry->d_name);
             count++;
         }
