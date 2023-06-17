@@ -74,7 +74,7 @@ int main(int argc, char const *argv[]) {
         }
         
         long size, width, heigth, shadowLen;
-        readHeaderSetOffet(file, &width, &heigth, &size);
+        readHeaderSetOffetWithSize(file, &width, &heigth, &size);
         uint8_t ** shadows = generateShadows(file, k, n, width, heigth, &shadowLen);
 
         if(k > 4) {
