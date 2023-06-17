@@ -1,9 +1,9 @@
 #include "steganography.h"
 
 typedef struct {
-  char mask;
-  char ioff;
-  char doff;
+  uint8_t mask;
+  uint8_t ioff;
+  uint8_t doff;
 } lsb_params_t;
 
 static const lsb_params_t LSB4 = { 
@@ -18,12 +18,12 @@ static const lsb_params_t LSB2 = {
     .doff = 2
 };
 
-static void encoder(lsb_params_t params, char* image, size_t imageSize, size_t offset, char* shadows, size_t shadowsSize) {
-    char mask = params.mask;
-    char off = params.ioff;
+static void encoder(lsb_params_t params, uint8_t* image, size_t imageSize, size_t offset, uint8_t* shadows, size_t shadowsSize) {
+    uint8_t mask = params.mask;
+    uint8_t off = params.ioff;
 
     for (int i = offset, j = 0; i < imageSize && j < shadowsSize; i++) {
-        char shadowBit = (shadows[j] >> off) & mask;
+        uint8_t shadowBit = (shadows[j] >> off) & mask;
 
         image[i] &= ~mask;
         image[i] |= shadowBit;
@@ -36,23 +36,25 @@ static void encoder(lsb_params_t params, char* image, size_t imageSize, size_t o
     }
 }
 
-void lsb2Encode(char *image, size_t imageSize, size_t offset, char *shadows, size_t shadowsSize) {
+void lsb2Encode(uint8_t *image, size_t imageSize, size_t offset, uint8_t *shadows, size_t shadowsSize) {
     encoder(LSB2, image, imageSize, offset, shadows, shadowsSize);
 }
 
-void lsb4Encode(char *image, size_t imageSize, size_t offset, char *shadows, size_t shadowsSize) {
+void lsb4Encode(uint8_t *image, size_t imageSize, size_t offset, uint8_t *shadows, size_t shadowsSize) {
     encoder(LSB4, image, imageSize, offset, shadows, shadowsSize);
 }
 
+/*
 void testPrinter(char *image, int size){
     for (int i = 0; i < size; i++) {
         printf("%hhX ", image[i]);
     }
 }
 
+
 int main() {
-    char image[16] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    char shadows[3] = {0xFF, 0xFF, 0xFF};
+    char image[16] = {0x00};
+    char shadows[3] = {0xFF};
     char image2[16] = {0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
     char secret[1] = {0b11011010};
@@ -73,5 +75,5 @@ int main() {
     printf("\n============= Answer ===============\n");    
     testPrinter(image2, 16);
     printf("\n====================================\n");  
-
 }
+*/
