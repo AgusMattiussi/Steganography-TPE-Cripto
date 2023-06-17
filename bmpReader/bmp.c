@@ -8,7 +8,6 @@
 #include "bmp.h"
 
 static int SizeOfInformationHeader(FILE *fp);
-static BITMAPFILEHEADER *ReadBMFileHeader(FILE *fp);
 static BITMAPCOREHEADER *ReadBMCoreHeader(FILE *fp);
 static BITMAPINFOHEADER *ReadBMInfoHeader(FILE *fp);
 static unsigned short ReadLE2(FILE *fp);
@@ -17,7 +16,7 @@ static unsigned int ReadLE4(FILE *fp);
 /*
  * Read bitmap file header
  */
-static BITMAPFILEHEADER *ReadBMFileHeader(FILE *fp)
+BITMAPFILEHEADER *ReadBMFileHeader(FILE *fp)
 {
     BITMAPFILEHEADER *header;
     char           filetype[3] = {'\0', '\0', '\0'};
@@ -227,6 +226,7 @@ int readHeaderSetOffet(FILE * image, long * width, long * height){
 
     *width = headersize == 40 ? bmInfoHeader->biWidth : (long) bmCoreHeader->bcWidth;
     *height = headersize == 40 ? bmInfoHeader->biHeight : (long) bmCoreHeader->bcHeight;
+    *size = bmFileHeader->bfSize;
 
     fseek(image, bmFileHeader->bfOffBits, SEEK_SET);
 
@@ -241,8 +241,6 @@ int readHeaderSetOffet(FILE * image, long * width, long * height){
     }
     printf(" ========================== \n\n"); */
     
-    fseek(image, bmFileHeader->bfOffBits, SEEK_SET);
-
     // TODO: Chequear errores, tamanio de imagen etc
     return 1;
 }
