@@ -28,5 +28,4 @@ void lagrange(int sh1[], int sh2[], int sh3[], int sh4[]) {
 		yp += p * y[i];
 	}
 
-
 }

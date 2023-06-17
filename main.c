@@ -72,6 +72,7 @@ int main(int argc, char const *argv[]) {
     } else if (strcmp(argv[1], "r") == 0){
 
         // TODO: Recover
+        // TODO: Chequear que las imagenes sean del mismo tamanio entre si
     } else {
         printf("Error: First argument must be either 'd' or 'r'");
         return EXIT_FAILURE;
