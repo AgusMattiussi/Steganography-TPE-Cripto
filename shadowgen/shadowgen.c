@@ -6,6 +6,8 @@
 static void blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, int n, int blockNum);
 static int generateB(uint8_t a, int r);
 static int generateR();
+static uint8_t ** allocateMatrix(int rows, int cols);
+static void freeMatrix(uint8_t ** m, int rows);
 
 void generateShadows(FILE * image, int k, int n, long width, long height) {
 
@@ -18,17 +20,8 @@ void generateShadows(FILE * image, int k, int n, long width, long height) {
     int t = (width*height) / (2*k - 2);
     printf("Block count (t): %d\n", t);
 
-    // TODO: Modularizar
-    uint8_t ** vm = calloc(t, sizeof(uint8_t *));
-    uint8_t ** vd = calloc(t, sizeof(uint8_t *));
-    for (int i = 0; i < t; i++)
-    {
-        vm[i] = calloc(n, sizeof(uint8_t));
-        vd[i] = calloc(n, sizeof(uint8_t));
-        if(vm[i] == NULL || vd[i] == NULL)
-            printf("Null en i=%d\n", i);
-    }
-    
+    uint8_t ** vm = allocateMatrix(t, n);
+    uint8_t ** vd = allocateMatrix(t, n);
 
     for (int i = 0; i < t; i++) {
         //printf("\n===== Block %d/%d =====\n", i+1, t);
@@ -46,14 +39,8 @@ void generateShadows(FILE * image, int k, int n, long width, long height) {
         }
     }
 
-    // TODO: Modularizar
-    for (int i = 0; i < t; i++)
-    {
-        free(vm[i]);
-        free(vd[i]);
-    }
-    free(vm);
-    free(vd);   
+    freeMatrix(vm, t);
+    freeMatrix(vd, t); 
 
     // Para que no tire warning por no usar variables
     printf("ignorar -> %hhx\n", shadows[0][0]);
@@ -102,9 +89,9 @@ static void blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, in
             resultF += buffer[d] *  pow((double) j, (double) d);
             //printf("%d\n", resultF);
         }
-        /* if(blockNum == 0){
+        if(blockNum == 0){
             printf("(%d) %ld (=%d MOD 251)\n", blockNum, resultF, (uint8_t)(resultF % GROUP_SIZE));
-        } */
+        }
         vm[blockNum][j-1] = resultF % GROUP_SIZE;
         //printf("vm[%d][%d] = %d\n\n", blockNum, j-1, resultF % GROUP_SIZE);
     }
@@ -144,6 +131,22 @@ static int generateB(uint8_t a, int r) {
 // [1, 250]
 static int generateR() {
     return (rand() % (GROUP_SIZE-1)) + 1;
+}
+
+// TODO: Chequear errores de allocation
+static uint8_t ** allocateMatrix(int rows, int cols){
+    uint8_t ** m = calloc(rows, sizeof(uint8_t *));
+    for (int i = 0; i < rows; i++){
+        m[i] = calloc(cols, sizeof(uint8_t));
+    }
+    return m;
+}
+
+static void freeMatrix(uint8_t ** m, int rows){
+    for (int i = 0; i < rows; i++){
+        free(m[i]);
+    }
+    free(m);
 }
 
 
