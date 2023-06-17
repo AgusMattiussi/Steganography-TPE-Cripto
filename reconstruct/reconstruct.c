@@ -73,6 +73,16 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
         // TODO: Salida con error
     }
 
+    uint8_t ** vm = allocateMatrix(t, k);
+    uint8_t ** vd = allocateMatrix(t, k);
+    // TODO: A chequear
+    for (int j = 0; j < k; j++) {
+        for (int i = 0; i < shadowLen; i += 2) {
+            vm[i/2][j] = shadows[j][i];
+            vd[i/2][j] = shadows[j][i+1];
+        }
+    }
+
     closedir(dir);
     freeMatrix(shadows, shadowLen);
 }
@@ -110,7 +120,6 @@ void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen){
         
         shadow[i] = shadowByte;
     }
-    
 }
 
 

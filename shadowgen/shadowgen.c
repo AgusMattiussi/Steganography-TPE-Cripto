@@ -32,7 +32,6 @@ uint8_t ** generateShadows(FILE * image, int k, int n, long width, long height, 
     printf("\nBlocks Generated!");
 
     uint8_t ** shadows = allocateMatrix(n, *shadowLen);
-    printf("\n");
     for (int j = 0; j < n; j++) {
         for (int i = 0; i < *shadowLen; i += 2) {
             //printf("j = %d ; i = %d\n", j, i);
