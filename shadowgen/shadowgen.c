@@ -1,23 +1,24 @@
 #include "shadowgen.h"
 
-#define GROUP_SIZE 251
+#define GROUP_MOD 251
 #define MAX_K 8
 
 static void blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, int n, int blockNum);
 static int generateB(uint8_t a, int r);
 static int generateR();
 static uint8_t ** allocateMatrix(int rows, int cols);
-static void freeMatrix(uint8_t ** m, int rows);
+static void freeMatrix(uint8_t ** m, long rows);
 
-void generateShadows(FILE * image, int k, int n, long width, long height) {
+uint8_t ** generateShadows(FILE * image, int k, int n, long width, long height, long * shadowLen) {
 
     printf("\nGenerating shadows...\n");
     printf("k: %d\n", k);
     printf("n: %d\n", n);
-    printf("size: %ld (width) x %ld (height)\n ", width, height);
+    printf("size: %ld (width) x %ld (height)\n", width, height);
 
     // t = block count
     int t = (width*height) / (2*k - 2);
+    *shadowLen = 2*t;
     printf("Block count (t): %d\n", t);
 
     uint8_t ** vm = allocateMatrix(t, n);
@@ -28,22 +29,22 @@ void generateShadows(FILE * image, int k, int n, long width, long height) {
         // TODO: Dividir en bloques la imagen
         blockSubshadow(image, vm, vd, k, n, i);
     }
-    printf("\nGenerados los bloques!!!\n");
-    uint8_t shadows[n][2*t];
+    printf("\nBlocks Generated!");
+
+    uint8_t ** shadows = allocateMatrix(n, *shadowLen);
     printf("\n");
     for (int j = 0; j < n; j++) {
-        for (int i = 0; i < 2*t; i += 2) {
+        for (int i = 0; i < *shadowLen; i += 2) {
             //printf("j = %d ; i = %d\n", j, i);
             shadows[j][i] = vm[i/2][j];
             shadows[j][i+1] = vd[i/2][j];
         }
     }
-
+    printf("Shadows Generated!\n");
     freeMatrix(vm, t);
     freeMatrix(vd, t); 
 
-    // Para que no tire warning por no usar variables
-    printf("ignorar -> %hhx\n", shadows[0][0]);
+    return shadows;
 }
 
 
@@ -89,11 +90,11 @@ static void blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, in
             resultF += buffer[d] *  pow((double) j, (double) d);
             //printf("%d\n", resultF);
         }
-        if(blockNum == 0){
-            printf("(%d) %ld (=%d MOD 251)\n", blockNum, resultF, (uint8_t)(resultF % GROUP_SIZE));
-        }
-        vm[blockNum][j-1] = resultF % GROUP_SIZE;
-        //printf("vm[%d][%d] = %d\n\n", blockNum, j-1, resultF % GROUP_SIZE);
+        /* if(blockNum == 0){
+            printf("(%d) %ld (=%d MOD 251)\n", blockNum, resultF, (uint8_t)(resultF % GROUP_MOD));
+        } */
+        vm[blockNum][j-1] = resultF % GROUP_MOD;
+        //printf("vm[%d][%d] = %d\n\n", blockNum, j-1, resultF % GROUP_MOD);
     }
 
     int r = generateR();
@@ -118,19 +119,19 @@ static void blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, in
         for (int d = 2; d < k; d++) {
             resultG += buffer[d - 2] *  pow((double) j, (double) d);
         }
-        vd[blockNum][j-1] = resultG % GROUP_SIZE;
+        vd[blockNum][j-1] = resultG % GROUP_MOD;
     }
 
 }
 
 static int generateB(uint8_t a, int r) {
     uint8_t aux = a == 0 ? 1 : a;
-    return -(r*aux) % GROUP_SIZE;
+    return -(r*aux) % GROUP_MOD;
 }
 
 // [1, 250]
 static int generateR() {
-    return (rand() % (GROUP_SIZE-1)) + 1;
+    return (rand() % (GROUP_MOD-1)) + 1;
 }
 
 // TODO: Chequear errores de allocation
@@ -142,12 +143,14 @@ static uint8_t ** allocateMatrix(int rows, int cols){
     return m;
 }
 
-static void freeMatrix(uint8_t ** m, int rows){
+static void freeMatrix(uint8_t ** m, long rows){
     for (int i = 0; i < rows; i++){
         free(m[i]);
     }
     free(m);
 }
 
-
+void freeShadows(uint8_t ** shadows, long shadowLen){
+    freeMatrix(shadows, shadowLen);
+}
 

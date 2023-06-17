@@ -65,10 +65,9 @@ int main(int argc, char const *argv[]) {
             return EXIT_FAILURE;
         }
         
-        long width, heigth;
-
+        long width, heigth, shadowLen;
         readHeaderSetOffet(file, &width, &heigth);
-        generateShadows(file, k, n, width, heigth);
+        generateShadows(file, k, n, width, heigth, &shadowLen);
 
     } else if (strcmp(argv[1], "r") == 0){
 
