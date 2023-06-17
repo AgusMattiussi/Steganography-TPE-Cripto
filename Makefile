@@ -7,7 +7,6 @@ SOURCES_SHADOWGEN=$(wildcard shadowgen/*.c)
 SOURCES_STEGANOGRAPHY=$(wildcard steganography/*.c)
 BIN_DIR=./bin
 BIN_FILE=./bin/main
-BIN_FILE_BMP=./bin/bmp
 
 all:
 	@mkdir -p $(BIN_DIR)
