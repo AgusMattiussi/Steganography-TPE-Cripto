@@ -231,7 +231,7 @@ int readHeaderSetOffet(FILE * image, long * width, long * heigth){
     fseek(image, bmFileHeader->bfOffBits, SEEK_SET);
 
     //TODO: Delete
-    char buffer[100];
+    /* char buffer[100];
     printf("\n ===== First 100 bytes ====\n");
     fread(buffer, sizeof(char), 100, image);
     for (size_t i = 1; i <= 100; i++){
@@ -239,7 +239,7 @@ int readHeaderSetOffet(FILE * image, long * width, long * heigth){
         if(i % 10 == 0)
             printf("\n");
     }
-    printf(" ========================== \n\n");
+    printf(" ========================== \n\n"); */
     
     fseek(image, bmFileHeader->bfOffBits, SEEK_SET);
 
