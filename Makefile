@@ -1,6 +1,5 @@
 CC=gcc
-# CCFLAGS_FINAL=-g -Wall -Wextra -Wno-unused-parameter -Wno-implicit-fallthrough -pedantic
-CCFLAGS=-Wall -std=c99 -pedantic -D _DEFAULT_SOURCE -lm
+CCFLAGS=-Wall -std=c99 -pedantic -D_DEFAULT_SOURCE -lm
 SOURCES=$(wildcard ./*.c)
 SOURCES_BMP=$(wildcard bmpReader/*.c)
 SOURCES_SHADOWGEN=$(wildcard shadowgen/*.c)
