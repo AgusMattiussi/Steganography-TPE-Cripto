@@ -24,7 +24,7 @@
 
 const char *get_filename_ext(const char *filename);
 const int checkFileCount(DIR * dir);
-void hideSecret(DIR *dir, uint8_t **shadows, size_t shadowLen, int mode);
+int hideSecret(DIR *dir, long originalImageSize, uint8_t **shadows, size_t shadowLen, int mode);
 
 int main(int argc, char const *argv[]) {
     srand(time(0));
@@ -73,16 +73,16 @@ int main(int argc, char const *argv[]) {
             return EXIT_FAILURE;
         }
         
-        long width, heigth, shadowLen;
-        readHeaderSetOffet(file, &width, &heigth);
+        long size, width, heigth, shadowLen;
+        readHeaderSetOffet(file, &width, &heigth, &size);
         uint8_t ** shadows = generateShadows(file, k, n, width, heigth, &shadowLen);
 
         if(k > 4) {
             // LSB2
-            hideSecret(dir, shadows, shadowLen, LSB2);
+            hideSecret(dir, size, shadows, shadowLen, LSB2);
         } else {
             // LSB4
-            hideSecret(dir, shadows, shadowLen, LSB4);
+            hideSecret(dir, size, shadows, shadowLen, LSB4);
         }
 
     } else if (strcmp(argv[1], "r") == 0){
@@ -133,7 +133,11 @@ const int checkFileCount(DIR * dir){
     return count;   
 }
 
-void hideSecret(DIR *dir, uint8_t **shadows, size_t shadowLen, int mode) {
+const int checkImageSize(long size1, long size2){
+    return size1 == size2? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+int hideSecret(DIR *dir, long originalImageSize, uint8_t **shadows, size_t shadowLen, int mode) {
     struct dirent * entry;
     int j=0;
     printf("Hiding shadows...\n\n");
@@ -141,8 +145,16 @@ void hideSecret(DIR *dir, uint8_t **shadows, size_t shadowLen, int mode) {
     char dirPath[50] = "bmpfiles/";
         if (entry->d_type == DT_REG) {
             printf("Hiding shadow %d in file %s\n", j+1, entry->d_name);
+            
             FILE * participant = fopen(strcat(dirPath, entry->d_name), "r+");
+            
             BITMAPFILEHEADER * bmFileHeader = ReadBMFileHeader(participant);
+
+            
+            if(checkImageSize(originalImageSize, bmFileHeader->bfSize)){
+                printf("File %s has a diferent size\n",  entry->d_name);
+                return EXIT_FAILURE;
+            }
 
             size_t imageSize = bmFileHeader->bfSize - bmFileHeader->bfOffBits + 1;
 
@@ -162,5 +174,6 @@ void hideSecret(DIR *dir, uint8_t **shadows, size_t shadowLen, int mode) {
 
             j++;
         }
-    }             
+    }     
+    return EXIT_SUCCESS;        
 }

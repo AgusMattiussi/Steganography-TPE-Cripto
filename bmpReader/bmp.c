@@ -207,7 +207,7 @@ static unsigned int ReadLE4(FILE *fp)
     return result;
 }
 
-int readHeaderSetOffet(FILE * image, long * width, long * heigth){
+int readHeaderSetOffet(FILE * image, long * width, long * heigth, long * size){
     BITMAPFILEHEADER *bmFileHeader = NULL;
     BITMAPCOREHEADER *bmCoreHeader = NULL;
     BITMAPINFOHEADER *bmInfoHeader = NULL;
@@ -226,6 +226,7 @@ int readHeaderSetOffet(FILE * image, long * width, long * heigth){
 
     *width = headersize == 40 ? bmInfoHeader->biWidth : (long) bmCoreHeader->bcWidth;
     *heigth = headersize == 40 ? bmInfoHeader->biHeight : (long) bmCoreHeader->bcHeight;
+    *size = bmFileHeader->bfSize;
 
     fseek(image, bmFileHeader->bfOffBits, SEEK_SET);
 

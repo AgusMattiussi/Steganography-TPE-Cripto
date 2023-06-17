@@ -52,7 +52,7 @@ typedef struct tagBITMAPCOREHEADER {
 } BITMAPCOREHEADER;
 
 
-int readHeaderSetOffet(FILE * image, long * width, long * heigth);
+int readHeaderSetOffet(FILE * image, long * width, long * heigth, long * size);
 BITMAPFILEHEADER *ReadBMFileHeader(FILE *fp);
 void printBmpInfo(FILE * image);
 
