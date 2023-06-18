@@ -35,6 +35,7 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
 
     long width, height, t, shadowLen;
     uint8_t ** shadows = NULL;
+    uint8_t * preimages = malloc(sizeof(uint8_t) * k);
 
     while(processed < k && ((entry = readdir(dir)) != NULL)){
         
@@ -61,6 +62,8 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
                 shadows = allocateMatrix(k, shadowLen);
             }
 
+            BITMAPFILEHEADER * participantHeader = ReadBMFileHeader(participant);
+            preimages[processed] = participantHeader->bfReserved1;
             recoverShadow(participant, k, shadows[processed], shadowLen);
 
             //recoverShadow()
@@ -82,6 +85,7 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
             vd[i/2][j] = shadows[j][i+1];
         }
     }
+    
 
     closedir(dir);
     freeMatrix(shadows, shadowLen);
