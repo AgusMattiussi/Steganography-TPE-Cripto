@@ -64,6 +64,7 @@ int main(int argc, char *argv[]) {
             return EXIT_FAILURE;
         }
         hideSecret(argv[4], file, n, k);
+        fclose(file);
     } else if (strcmp(argv[1], "r") == 0){
         // TODO: Recover
         // TODO: Chequear que las imagenes sean del mismo tamanio entre si
@@ -72,8 +73,6 @@ int main(int argc, char *argv[]) {
         printf("Error: First argument must be either 'd' or 'r'");
         return EXIT_FAILURE;
     }
-
-    fclose(file);
 
     printf("Success!\n");
     return EXIT_SUCCESS;
