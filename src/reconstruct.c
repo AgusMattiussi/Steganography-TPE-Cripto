@@ -1,23 +1,7 @@
-#include <sys/types.h>
-#include <dirent.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include "include/bmp.h"
-#include "include/utils.h"
-#include "include/gauss.h"
+#include "include/reconstruct.h"
 
+static void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen);
 static int checkRi(uint8_t ai0, uint8_t ai1, uint8_t bi0, uint8_t bi1);
-
-void reconstruct(char * outputName, char * sourceDirName, int k);
-void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen);
-
-/* int main(int argc, char *argv[]){
-    printf("%s\n\n", argv[1]);
-    reconstruct("", argv[1], 3);
-    return 0;
-} */
 
 static uint8_t modInverses[GROUP_MOD] = {
     0, 1, 126, 84, 63, 201, 42, 36, 157, 28, 226, 137, 21, 58, 18, 67, 204,
@@ -139,7 +123,7 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
     freeMatrix(shadows, shadowLen);
 }
 
-void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen){
+static void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen){
 
     // Para lsb2, leo de a 4
     // Para lsb4, leo de a 2
