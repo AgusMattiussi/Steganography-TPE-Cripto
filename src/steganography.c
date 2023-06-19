@@ -1,4 +1,4 @@
-#include "steganography.h"
+#include "include/steganography.h"
 
 typedef struct {
   uint8_t mask;

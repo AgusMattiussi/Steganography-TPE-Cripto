@@ -5,7 +5,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "../utils/utils.h"
+#include "utils.h"
 
 #define GROUP_MOD 251
 

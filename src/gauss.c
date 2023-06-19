@@ -1,4 +1,4 @@
-#include "gauss.h"
+#include "include/gauss.h"
 
 static uint8_t positiveMod(int n);
 static uint8_t * solve(uint8_t ** m, int dim);

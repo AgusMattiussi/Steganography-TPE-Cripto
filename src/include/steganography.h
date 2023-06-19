@@ -4,8 +4,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <dirent.h>
-#include "../bmp/bmp.h"
-#include "../utils/utils.h"
+#include "bmp.h"
+#include "utils.h"
 
 #define LSB_MODE 4
 

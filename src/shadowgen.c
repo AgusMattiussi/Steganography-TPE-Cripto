@@ -1,4 +1,4 @@
-#include "shadowgen.h"
+#include "include/shadowgen.h"
 
 #define GROUP_MOD 251
 #define MAX_K 8

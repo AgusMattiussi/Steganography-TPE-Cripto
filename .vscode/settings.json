@@ -4,6 +4,7 @@
         "bmp.h": "c",
         "shadowgen.h": "c",
         "steganography.h": "c",
-        "utils.h": "c"
+        "utils.h": "c",
+        "gauss.h": "c"
     }
 }

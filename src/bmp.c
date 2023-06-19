@@ -5,7 +5,7 @@
  *
  */
 
-#include "bmp.h"
+#include "include/bmp.h"
 
 static int SizeOfInformationHeader(FILE *fp);
 static BITMAPCOREHEADER *ReadBMCoreHeader(FILE *fp);

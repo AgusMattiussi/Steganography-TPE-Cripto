@@ -4,10 +4,10 @@
 #include <dirent.h>
 #include <errno.h>
 #include <time.h>
-#include "utils/utils.h"
-#include "shadowgen/shadowgen.h"
-#include "bmp/bmp.h"
-#include "steganography/steganography.h"
+#include "include/utils.h"
+#include "include/shadowgen.h"
+#include "include/bmp.h"
+#include "include/steganography.h"
 
 /*
  Parametros:

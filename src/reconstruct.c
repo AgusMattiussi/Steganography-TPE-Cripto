@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../bmp/bmp.h"
-#include "../utils/utils.h"
-#include "gauss.h"
+#include "include/bmp.h"
+#include "include/utils.h"
+#include "include/gauss.h"
 
 static int checkRi(uint8_t ai0, uint8_t ai1, uint8_t bi0, uint8_t bi1);
 
