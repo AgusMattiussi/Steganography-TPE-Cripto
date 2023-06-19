@@ -40,3 +40,18 @@ char * getFullPath(const char *dirName, int dirNameLen, char *entryName){
     strcat(fullPath, entryName);
     return fullPath;
 }
+
+uint8_t ** allocateMatrix(int rows, int cols){
+    uint8_t ** m = calloc(rows, sizeof(uint8_t *));
+    for (int i = 0; i < rows; i++){
+        m[i] = calloc(cols, sizeof(uint8_t));
+    }
+    return m;
+}
+
+void freeMatrix(uint8_t ** m, long rows){
+    for (int i = 0; i < rows; i++){
+        free(m[i]);
+    }
+    free(m);
+}

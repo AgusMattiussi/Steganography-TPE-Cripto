@@ -2,11 +2,10 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "../utils/utils.h"
 
 #define GROUP_MOD 251
 
-static uint8_t ** allocateMatrix(int rows, int cols);
-//static void freeMatrix(uint8_t ** m, long rows);
 static uint8_t positiveMod(uint8_t n);
 
 static uint8_t modInverses[GROUP_MOD];
@@ -93,19 +92,3 @@ static uint8_t positiveMod(uint8_t n){
         aux += GROUP_MOD;
     return aux % GROUP_MOD;
 }
-
-static uint8_t ** allocateMatrix(int rows, int cols){
-    uint8_t ** m = calloc(rows, sizeof(uint8_t *));
-    for (int i = 0; i < rows; i++){
-        m[i] = calloc(cols, sizeof(uint8_t));
-    }
-    return m;
-}
-
-/* static void freeMatrix(uint8_t ** m, long rows){
-    for (int i = 0; i < rows; i++){
-        free(m[i]);
-    }
-    free(m);
-} */
-
