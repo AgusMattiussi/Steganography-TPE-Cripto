@@ -45,16 +45,26 @@ void lsb4Encode(uint8_t *image, size_t imageSize, size_t offset, uint8_t *shadow
 }
 
 //TODO: Chequear cuando este lista la reconstruccion
-int hideSecret(DIR *dir, long originalImageSize, uint8_t **shadows, size_t shadowLen, int k) {
+int hideSecret(const char *dirName, long originalImageSize, uint8_t **shadows, size_t shadowLen, int k) {
+    DIR *dir = opendir(dirName);
+    if(dir == NULL){
+        printf("Directory does not exist\n");
+        return EXIT_FAILURE;
+    }
     struct dirent * entry;
     int j=0;
+
+    int dirNameLen = strlen(dirName);
+    char *fullPath;
+
     printf("Hiding shadows...\n\n");
     while ((entry = readdir(dir)) != NULL) {
-    char dirPath[50] = "bmpfiles/";
         if (entry->d_type == DT_REG) {
             printf("Hiding shadow %d in file %s\n", j+1, entry->d_name);
+
+            fullPath = getFullPath(dirName, dirNameLen, entry->d_name);
             
-            FILE * participant = fopen(strcat(dirPath, entry->d_name), "r+");
+            FILE * participant = fopen(fullPath, "r+");
             
             BITMAPFILEHEADER * bmFileHeader = ReadBMFileHeader(participant);
             
@@ -81,7 +91,8 @@ int hideSecret(DIR *dir, long originalImageSize, uint8_t **shadows, size_t shado
 
             j++;
         }
-    }     
+    }
+    closedir(dir);
     return EXIT_SUCCESS;        
 }
 

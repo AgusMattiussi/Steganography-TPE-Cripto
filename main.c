@@ -56,8 +56,6 @@ int main(int argc, char const *argv[]) {
     }
     closedir(dir);
 
-    dir = opendir(argv[4]);
-
     if(strcmp(argv[1], "d") == 0){
         file = fopen(filename, "r");
 
@@ -69,7 +67,7 @@ int main(int argc, char const *argv[]) {
         long size, width, heigth, shadowLen;
         readHeaderSetOffetWithSize(file, &width, &heigth, &size);
         uint8_t ** shadows = generateShadows(file, k, n, width, heigth, &shadowLen);
-        hideSecret(dir, size, shadows, shadowLen, k);
+        hideSecret(argv[4], size, shadows, shadowLen, k);
 
     } else if (strcmp(argv[1], "r") == 0){
         // TODO: Recover
@@ -87,7 +85,6 @@ int main(int argc, char const *argv[]) {
     */
 
     fclose(file);
-    closedir(dir);
 
     printf("Success!\n");
     return EXIT_SUCCESS;

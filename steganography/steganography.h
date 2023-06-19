@@ -13,6 +13,6 @@ void lsb2Encode(uint8_t *image, size_t imageSize, size_t offset, uint8_t *shadow
 
 void lsb4Encode(uint8_t *image, size_t imageSize, size_t offset, uint8_t *shadows, size_t shadowsSize);
 
-int hideSecret(DIR *dir, long originalImageSize, uint8_t **shadows, size_t shadowLen, int mode);
+int hideSecret(const char *dirName, long originalImageSize, uint8_t **shadows, size_t shadowLen, int mode);
 
 #endif

@@ -10,5 +10,6 @@
 const char *get_filename_ext(const char *filename);
 const int checkFileCount(DIR * dir);
 const int checkImageSize(long size1, long size2);
+char * getFullPath(const char *dirName, int dirNameLen, char *entryName);
 
 #endif

@@ -29,3 +29,14 @@ const int checkFileCount(DIR * dir){
 const int checkImageSize(long size1, long size2){
     return size1 == size2? EXIT_SUCCESS : EXIT_FAILURE;
 }
+
+char * getFullPath(const char *dirName, int dirNameLen, char *entryName){
+    char *fullPath = calloc(dirNameLen + strlen(entryName) + 2, sizeof(char));
+    strcat(fullPath, dirName);
+    if(fullPath[dirNameLen-1] == '/'){
+        fullPath[dirNameLen-1] = '\0';
+    }
+    strcat(fullPath, "/");
+    strcat(fullPath, entryName);
+    return fullPath;
+}
