@@ -9,10 +9,6 @@
 static uint8_t positiveMod(uint8_t n);
 static uint8_t * solve(uint8_t ** m, int dim);
 
-static uint8_t modInverses[GROUP_MOD];
-static int initialized = 0;
-
-/*
 static uint8_t modInverses[GROUP_MOD] = {
     0, 1, 126, 84, 63, 201, 42, 36, 157, 28, 226, 137, 21, 58, 18, 67, 204,
     192, 14, 185, 113, 12, 194, 131, 136, 241, 29, 93, 9, 26, 159, 81, 102,
@@ -31,23 +27,8 @@ static uint8_t modInverses[GROUP_MOD] = {
     242, 158, 222, 10, 115, 120, 57, 239, 138, 66, 237, 59, 47, 184, 233,
     193, 230, 114, 25, 223, 94, 215, 209, 50, 188, 167, 125, 250
 };
-*/
-
-void calculateModInverses();
-void triangulate(uint8_t ** m, int dim);
-uint8_t * gauss(uint8_t * y, uint8_t * x, int dim);
-
-int main(int argc, char const *argv[]){
-    return 0;
-}
-
 
 uint8_t * gauss(uint8_t * y, uint8_t * x, int dim){
-    if(!initialized){
-        calculateModInverses();
-        initialized = 1;
-    }
-
     uint8_t ** gaussMatrix = allocateMatrix(dim, dim + 1);
 
     for (size_t i = 0; i < dim; i++){
