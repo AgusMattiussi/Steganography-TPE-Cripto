@@ -9,8 +9,6 @@
 
 void reconstruct(char * outputName, char * sourceDirName, int k);
 void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen);
-static uint8_t ** allocateMatrix(int rows, long cols);
-static void freeMatrix(uint8_t ** m, long rows);
 
 int main(int argc, char *argv[]){
     printf("%s\n\n", argv[1]);
@@ -118,20 +116,4 @@ void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen){
         
         shadow[i] = shadowByte;
     }
-}
-
-
-static uint8_t ** allocateMatrix(int rows, long cols){
-    uint8_t ** m = calloc(rows, sizeof(uint8_t *));
-    for (long i = 0; i < rows; i++){
-        m[i] = calloc(cols, sizeof(uint8_t));
-    }
-    return m;
-}
-
-static void freeMatrix(uint8_t ** m, long rows){
-    for (int i = 0; i < rows; i++){
-        free(m[i]);
-    }
-    free(m);
 }

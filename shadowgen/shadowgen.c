@@ -6,8 +6,6 @@
 static void blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, int n, int blockNum);
 static int generateB(uint8_t a, int r);
 static int generateR();
-static uint8_t ** allocateMatrix(int rows, int cols);
-static void freeMatrix(uint8_t ** m, long rows);
 
 uint8_t ** generateShadows(FILE * image, int k, int n, long width, long height, long * shadowLen) {
 
@@ -131,22 +129,6 @@ static int generateB(uint8_t a, int r) {
 // [1, 250]
 static int generateR() {
     return (rand() % (GROUP_MOD-1)) + 1;
-}
-
-// TODO: Chequear errores de allocation
-static uint8_t ** allocateMatrix(int rows, int cols){
-    uint8_t ** m = calloc(rows, sizeof(uint8_t *));
-    for (int i = 0; i < rows; i++){
-        m[i] = calloc(cols, sizeof(uint8_t));
-    }
-    return m;
-}
-
-static void freeMatrix(uint8_t ** m, long rows){
-    for (int i = 0; i < rows; i++){
-        free(m[i]);
-    }
-    free(m);
 }
 
 void freeShadows(uint8_t ** shadows, long shadowLen){
