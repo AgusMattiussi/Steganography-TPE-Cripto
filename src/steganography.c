@@ -45,12 +45,17 @@ void lsb4Encode(uint8_t *image, size_t imageSize, size_t offset, uint8_t *shadow
 }
 
 //TODO: Chequear cuando este lista la reconstruccion
-int hideSecret(const char *dirName, long originalImageSize, uint8_t **shadows, size_t shadowLen, int k) {
+int hideSecret(const char *dirName, FILE *file, int n, int k) {
     DIR *dir = opendir(dirName);
     if(dir == NULL){
         printf("Directory does not exist\n");
         return EXIT_FAILURE;
     }
+
+    long width, heigth, shadowLen;
+    readHeaderSetOffset(file, &width, &heigth);
+    uint8_t ** shadows = generateShadows(file, k, n, width, heigth, &shadowLen);
+    
     struct dirent * entry;
     int j=0;
 
@@ -67,20 +72,20 @@ int hideSecret(const char *dirName, long originalImageSize, uint8_t **shadows, s
             FILE * participant = fopen(fullPath, "r+");
             
             BITMAPFILEHEADER * bmFileHeader = ReadBMFileHeader(participant);
+
+            size_t imageSize = bmFileHeader->bfSize-bmFileHeader->bfOffBits + 1;
             
-            if(checkImageSize(originalImageSize, bmFileHeader->bfSize)){
-                printf("File %s has a diferent size\n",  entry->d_name);
+            if(checkImageSize(width*heigth, imageSize-1)){
+                printf("File %s has a different size\n",  entry->d_name);
                 return EXIT_FAILURE;
             }
-
-            size_t imageSize = bmFileHeader->bfSize - bmFileHeader->bfOffBits + 1;
 
             uint8_t * imageBuffer = malloc(sizeof(uint8_t) * imageSize);
 
             fseek(participant, bmFileHeader->bfOffBits, SEEK_SET);
             fread(imageBuffer, sizeof(uint8_t), imageSize, participant);
 
-            if(k > 4){
+            if(k > LSB_MODE){
                 lsb2Encode(imageBuffer, imageSize, 0, shadows[j], shadowLen);
             } else {
                 lsb4Encode(imageBuffer, imageSize, 0, shadows[j], shadowLen);

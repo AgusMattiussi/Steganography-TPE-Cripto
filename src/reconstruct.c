@@ -71,7 +71,7 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
             }
             
             if(shadows == NULL){
-                readHeaderSetOffet(participant, &width, &height);
+                readHeaderSetOffset(participant, &width, &height);
                 t = (width*height) / (2*k - 2);
                 shadowLen = 2*t;
                 shadows = allocateMatrix(k, shadowLen);
