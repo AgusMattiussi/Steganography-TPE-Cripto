@@ -57,6 +57,8 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
     long width, height, t, shadowLen;
     uint8_t ** shadows = NULL;
     uint8_t * preimages = malloc(sizeof(uint8_t) * k);
+    uint8_t * outputHeader = NULL;
+    int offset = 0;
 
     while(processed < k && ((entry = readdir(dir)) != NULL)){
         
@@ -70,14 +72,26 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
                 return;
             }
             
+
+            BITMAPFILEHEADER * participantHeader = ReadBMFileHeader(participant);
+
+            if(outputHeader == NULL){
+                // TODO: -1?
+                offset = participantHeader->bfOffBits;
+                outputHeader = malloc(sizeof(uint8_t) * offset);
+                fseek(participant, 0, SEEK_SET);
+                fread(outputHeader, sizeof(uint8_t), offset, participant);
+            }
+
             if(shadows == NULL){
-                readHeaderSetOffet(participant, &width, &height);
+                getDimensions(participant, &width, &height);
                 t = (width*height) / (2*k - 2);
                 shadowLen = 2*t;
                 shadows = allocateMatrix(k, shadowLen);
             }
 
-            BITMAPFILEHEADER * participantHeader = ReadBMFileHeader(participant);
+            fseek(participant, participantHeader->bfOffBits, SEEK_SET);
+
             preimages[processed] = participantHeader->bfReserved1;
             recoverShadow(participant, k, shadows[processed], shadowLen);
             processed++;
@@ -99,6 +113,9 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
         }
     }
 
+    FILE * outputFile = fopen(outputName, "w+");
+    fwrite(outputHeader, sizeof(uint8_t), offset, outputFile);
+
     for (int i = 0; i < t; i++){
         uint8_t * a_i = gauss(vm[i], preimages, k);
         uint8_t * b_i = gauss(vd[i], preimages, k);
@@ -109,11 +126,16 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
             exit(1);
         }
 
+        fwrite(a_i, sizeof(uint8_t), k, outputFile);
+        fwrite(&(b_i[2]), sizeof(uint8_t), k-2, outputFile);
 
+        free(a_i);
+        free(b_i);
     }
     
-    
+    fclose(outputFile);
     closedir(dir);
+    free(outputHeader);
     freeMatrix(shadows, shadowLen);
 }
 
