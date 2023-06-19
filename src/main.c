@@ -59,17 +59,11 @@ int main(int argc, char *argv[]) {
 
     if(strcmp(argv[1], "d") == 0){
         file = fopen(filename, "r");
-
         if(file == NULL){
             printf("Image file does not exist\n");
             return EXIT_FAILURE;
         }
-        
-        long size, width, heigth, shadowLen;
-        readHeaderSetOffetWithSize(file, &width, &heigth, &size);
-        uint8_t ** shadows = generateShadows(file, k, n, width, heigth, &shadowLen);
-        hideSecret(argv[4], size, shadows, shadowLen, k);
-
+        hideSecret(argv[4], file, n, k);
     } else if (strcmp(argv[1], "r") == 0){
         // TODO: Recover
         // TODO: Chequear que las imagenes sean del mismo tamanio entre si
@@ -78,13 +72,6 @@ int main(int argc, char *argv[]) {
         printf("Error: First argument must be either 'd' or 'r'");
         return EXIT_FAILURE;
     }
-
-    /*  //TODO:
-    free(bmFileHeader);
-    free(bmCoreHeader);
-    free(bmInfoHeader);
-    fclose(imagen); 
-    */
 
     fclose(file);
 
