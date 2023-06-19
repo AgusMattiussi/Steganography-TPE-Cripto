@@ -44,6 +44,47 @@ void lsb4Encode(uint8_t *image, size_t imageSize, size_t offset, uint8_t *shadow
     encoder(LSB4, image, imageSize, offset, shadows, shadowsSize);
 }
 
+//TODO: Chequear cuando este lista la reconstruccion
+int hideSecret(DIR *dir, long originalImageSize, uint8_t **shadows, size_t shadowLen, int k) {
+    struct dirent * entry;
+    int j=0;
+    printf("Hiding shadows...\n\n");
+    while ((entry = readdir(dir)) != NULL) {
+    char dirPath[50] = "bmpfiles/";
+        if (entry->d_type == DT_REG) {
+            printf("Hiding shadow %d in file %s\n", j+1, entry->d_name);
+            
+            FILE * participant = fopen(strcat(dirPath, entry->d_name), "r+");
+            
+            BITMAPFILEHEADER * bmFileHeader = ReadBMFileHeader(participant);
+            
+            if(checkImageSize(originalImageSize, bmFileHeader->bfSize)){
+                printf("File %s has a diferent size\n",  entry->d_name);
+                return EXIT_FAILURE;
+            }
+
+            size_t imageSize = bmFileHeader->bfSize - bmFileHeader->bfOffBits + 1;
+
+            uint8_t * imageBuffer = malloc(sizeof(uint8_t) * imageSize);
+
+            fseek(participant, bmFileHeader->bfOffBits, SEEK_SET);
+            fread(imageBuffer, sizeof(uint8_t), imageSize, participant);
+
+            if(k > 4){
+                lsb2Encode(imageBuffer, imageSize, 0, shadows[j], shadowLen);
+            } else {
+                lsb4Encode(imageBuffer, imageSize, 0, shadows[j], shadowLen);
+            }
+
+            fseek(participant, bmFileHeader->bfOffBits, SEEK_SET);
+            fwrite(imageBuffer, sizeof(uint8_t), imageSize, participant);
+
+            j++;
+        }
+    }     
+    return EXIT_SUCCESS;        
+}
+
 /*
 void testPrinter(char *image, int size){
     for (int i = 0; i < size; i++) {
