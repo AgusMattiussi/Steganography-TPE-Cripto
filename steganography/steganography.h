@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <dirent.h>
-#include "../bmpReader/bmp.h"
+#include "../bmp/bmp.h"
 #include "../utils/utils.h"
 
 #define LSB_MODE 4

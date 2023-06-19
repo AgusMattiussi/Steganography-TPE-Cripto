@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../bmpReader/bmp.h"
+#include "../bmp/bmp.h"
 #include "../utils/utils.h"
 
 void reconstruct(char * outputName, char * sourceDirName, int k);

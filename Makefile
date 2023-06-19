@@ -1,7 +1,7 @@
 CC=gcc
 CCFLAGS=-Wall -std=c99 -pedantic -D_DEFAULT_SOURCE -lm
 SOURCES=$(wildcard ./*.c)
-SOURCES_BMP=$(wildcard bmpReader/*.c)
+SOURCES_BMP=$(wildcard bmp/*.c)
 SOURCES_UTILS=$(wildcard utils/*.c)
 SOURCES_SHADOWGEN=$(wildcard shadowgen/*.c)
 SOURCES_STEGANOGRAPHY=$(wildcard steganography/*.c)

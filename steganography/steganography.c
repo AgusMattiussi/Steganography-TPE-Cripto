@@ -89,11 +89,13 @@ int hideSecret(const char *dirName, long originalImageSize, uint8_t **shadows, s
             fseek(participant, bmFileHeader->bfOffBits, SEEK_SET);
             fwrite(imageBuffer, sizeof(uint8_t), imageSize, participant);
 
+            modifyReservedBit(participant, j+1);
+
             j++;
         }
     }
     closedir(dir);
-    return EXIT_SUCCESS;        
+    return EXIT_SUCCESS;
 }
 
 /*

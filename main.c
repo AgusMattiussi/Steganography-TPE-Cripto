@@ -6,7 +6,7 @@
 #include <time.h>
 #include "utils/utils.h"
 #include "shadowgen/shadowgen.h"
-#include "bmpReader/bmp.h"
+#include "bmp/bmp.h"
 #include "steganography/steganography.h"
 
 /*
