@@ -42,8 +42,11 @@ uint8_t * gauss(uint8_t * y, uint8_t * x, int dim){
     }
     
     triangulate(gaussMatrix, dim);
+
+    uint8_t * solutions = solve(gaussMatrix, dim);
+    freeMatrix(gaussMatrix, dim);
     
-    return solve(gaussMatrix, dim);
+    return solutions;
 }
 
 void triangulate(uint8_t ** m, int dim){
