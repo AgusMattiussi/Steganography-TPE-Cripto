@@ -9,6 +9,9 @@
 static uint8_t positiveMod(uint8_t n);
 static uint8_t * solve(uint8_t ** m, int dim);
 
+uint8_t * gauss(uint8_t * y, uint8_t * x, int dim);
+void triangulate(uint8_t ** m, int dim);
+
 static uint8_t modInverses[GROUP_MOD] = {
     0, 1, 126, 84, 63, 201, 42, 36, 157, 28, 226, 137, 21, 58, 18, 67, 204,
     192, 14, 185, 113, 12, 194, 131, 136, 241, 29, 93, 9, 26, 159, 81, 102,
@@ -76,16 +79,6 @@ static uint8_t * solve(uint8_t ** m, int dim){
    return solutions;
 }
 
-void calculateModInverses() {
-    for (uint8_t i = 1; i < GROUP_MOD; i++) {
-        for (uint8_t j = 1; j < GROUP_MOD; j++) {
-            if ((i * j) % GROUP_MOD == 1) {
-                modInverses[i] = j;
-                break;
-            }
-        }
-    }
-}
 
 static uint8_t positiveMod(uint8_t n){
     uint8_t aux = n;

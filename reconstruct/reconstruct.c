@@ -10,11 +10,11 @@
 void reconstruct(char * outputName, char * sourceDirName, int k);
 void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen);
 
-int main(int argc, char *argv[]){
+/* int main(int argc, char *argv[]){
     printf("%s\n\n", argv[1]);
     reconstruct("", argv[1], 3);
     return 0;
-}
+} */
 
 
 void reconstruct(char * outputName, char * sourceDirName, int k){
