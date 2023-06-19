@@ -7,6 +7,7 @@
 #define GROUP_MOD 251
 
 static uint8_t positiveMod(uint8_t n);
+static uint8_t * solve(uint8_t ** m, int dim);
 
 static uint8_t modInverses[GROUP_MOD];
 static int initialized = 0;
@@ -34,13 +35,14 @@ static uint8_t modInverses[GROUP_MOD] = {
 
 void calculateModInverses();
 void triangulate(uint8_t ** m, int dim);
+uint8_t * gauss(uint8_t * y, uint8_t * x, int dim);
 
 int main(int argc, char const *argv[]){
     return 0;
 }
 
 
-void gauss(uint8_t * y, uint8_t * x, int dim){
+uint8_t * gauss(uint8_t * y, uint8_t * x, int dim){
     if(!initialized){
         calculateModInverses();
         initialized = 1;
@@ -56,6 +58,8 @@ void gauss(uint8_t * y, uint8_t * x, int dim){
     }
     
     triangulate(gaussMatrix, dim);
+    
+    return solve(gaussMatrix, dim);
 }
 
 void triangulate(uint8_t ** m, int dim){
@@ -73,6 +77,22 @@ void triangulate(uint8_t ** m, int dim){
             }
         }
     }
+}
+
+static uint8_t * solve(uint8_t ** m, int dim){
+    uint8_t * solutions = calloc(dim, sizeof(int));
+    
+    for (int i = dim-1; i >= 0; i--){
+        uint8_t accum = m[i][dim];
+
+        for (int j = dim-1; j > i; j--){
+            accum -= m[i][j] * solutions[j];
+        }
+
+        solutions[i] = (positiveMod(accum) * modInverses[m[i][i]]) % GROUP_MOD;
+    }
+    
+   return solutions;
 }
 
 void calculateModInverses() {
