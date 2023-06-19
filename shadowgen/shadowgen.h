@@ -8,6 +8,5 @@
 
 uint8_t ** generateShadows(FILE * image, int k, int n, long width, long height, long * shadowLen);
 void freeShadows(uint8_t ** shadows, long shadowLen);
-void getImageDimensions(FILE * image, long * width, long * height);
 
 #endif

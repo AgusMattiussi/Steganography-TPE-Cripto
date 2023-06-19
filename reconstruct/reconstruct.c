@@ -4,7 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "../bmpReader/bmp.h"
+#include "../bmp/bmp.h"
+#include "../utils/utils.h"
 
 void reconstruct(char * outputName, char * sourceDirName, int k);
 void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen);
@@ -41,13 +42,7 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
         
         if (entry->d_type == DT_REG) {
 
-            fullPath = calloc(dirNameLen + strlen(entry->d_name) + 2, sizeof(char));
-            strcat(fullPath, sourceDirName);
-            if(fullPath[dirNameLen-1] == '/'){
-                fullPath[dirNameLen-1] = '\0';
-            }
-            strcat(fullPath, "/");
-            strcat(fullPath, entry->d_name);
+            fullPath = getFullPath(sourceDirName, dirNameLen, entry->d_name);
             
             participant = fopen(fullPath, "r");
             if(participant == NULL){
@@ -86,7 +81,6 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
         }
     }
     
-
     closedir(dir);
     freeMatrix(shadows, shadowLen);
 }

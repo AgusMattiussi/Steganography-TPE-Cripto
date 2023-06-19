@@ -3,6 +3,7 @@
         "stdio.h": "c",
         "bmp.h": "c",
         "shadowgen.h": "c",
-        "steganography.h": "c"
+        "steganography.h": "c",
+        "utils.h": "c"
     }
 }
