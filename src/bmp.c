@@ -221,7 +221,7 @@ int readHeaderSetOffetWithSize(FILE *image, long *width, long *height, long *siz
     } else if (headersize == 40) {
         bmInfoHeader = ReadBMInfoHeader(image);
     } else {
-        printf("Unsupported BITMAP.\n");
+        printf("Unsupported BITMAP 2.\n");
         return -1;
     }
 
@@ -247,7 +247,7 @@ int readHeaderSetOffet(FILE * image, long *width, long *height){
     } else if (headersize == 40) {
         bmInfoHeader = ReadBMInfoHeader(image);
     } else {
-        printf("Unsupported BITMAP.\n");
+        printf("Unsupported BITMAP 3.\n");
         return -1;
     }
 
@@ -265,13 +265,15 @@ int getDimensions(FILE * image, long *width, long *height){
     BITMAPINFOHEADER *bmInfoHeader = NULL;
     int headersize;
 
+    fseek(image, 0, SEEK_SET);
+
     headersize = SizeOfInformationHeader(image);
     if (headersize == 12) {
         bmCoreHeader = ReadBMCoreHeader(image);
     } else if (headersize == 40) {
         bmInfoHeader = ReadBMInfoHeader(image);
     } else {
-        printf("Unsupported BITMAP.\n");
+        printf("Unsupported BITMAP 4.\n");
         return -1;
     }
 
@@ -307,7 +309,7 @@ void printBmpInfo(FILE * image){
     } else if (headersize == 40) {
         bmInfoHeader = ReadBMInfoHeader(image);
     } else {
-        printf("Unsupported BITMAP.\n");
+        printf("Unsupported BITMAP 1.\n");
         return;
     }
 

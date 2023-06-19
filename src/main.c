@@ -8,6 +8,7 @@
 #include "include/shadowgen.h"
 #include "include/bmp.h"
 #include "include/steganography.h"
+#include "include/reconstruct.h"
 
 /*
  Parametros:
@@ -19,10 +20,10 @@
 
 */
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char *argv[]) {
     srand(time(0));
 
-    const char * filename;
+    char * filename;
     DIR* dir;
     FILE* file; 
     int k, n = 0;
@@ -72,6 +73,7 @@ int main(int argc, char const *argv[]) {
     } else if (strcmp(argv[1], "r") == 0){
         // TODO: Recover
         // TODO: Chequear que las imagenes sean del mismo tamanio entre si
+        reconstruct(filename, argv[4], k);
     } else {
         printf("Error: First argument must be either 'd' or 'r'");
         return EXIT_FAILURE;

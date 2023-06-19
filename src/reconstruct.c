@@ -143,7 +143,7 @@ static void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shad
     for (long i = 0; i < shadowLen; i++){
         uint8_t shadowByte = 0x00;
 
-        if(fread(buf, sizeof(uint8_t), bytesToRead, participant) < 8/lsbValue){
+        if(fread(buf, sizeof(uint8_t), bytesToRead, participant) < bytesToRead){
             // TODO: Manejar error
             printf("Me falto leer \n");
             return;
