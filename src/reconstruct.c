@@ -1,23 +1,7 @@
-#include <sys/types.h>
-#include <dirent.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include "include/bmp.h"
-#include "include/utils.h"
-#include "include/gauss.h"
+#include "include/reconstruct.h"
 
+static void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen);
 static int checkRi(uint8_t ai0, uint8_t ai1, uint8_t bi0, uint8_t bi1);
-
-void reconstruct(char * outputName, char * sourceDirName, int k);
-void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen);
-
-/* int main(int argc, char *argv[]){
-    printf("%s\n\n", argv[1]);
-    reconstruct("", argv[1], 3);
-    return 0;
-} */
 
 static uint8_t modInverses[GROUP_MOD] = {
     0, 1, 126, 84, 63, 201, 42, 36, 157, 28, 226, 137, 21, 58, 18, 67, 204,
@@ -57,6 +41,8 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
     long width, height, t, shadowLen;
     uint8_t ** shadows = NULL;
     uint8_t * preimages = malloc(sizeof(uint8_t) * k);
+    uint8_t * outputHeader = NULL;
+    int offset = 0;
 
     while(processed < k && ((entry = readdir(dir)) != NULL)){
         
@@ -70,14 +56,26 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
                 return;
             }
             
+
+            BITMAPFILEHEADER * participantHeader = ReadBMFileHeader(participant);
+
+            if(outputHeader == NULL){
+                // TODO: -1?
+                offset = participantHeader->bfOffBits;
+                outputHeader = malloc(sizeof(uint8_t) * offset);
+                fseek(participant, 0, SEEK_SET);
+                fread(outputHeader, sizeof(uint8_t), offset, participant);
+            }
+
             if(shadows == NULL){
-                readHeaderSetOffset(participant, &width, &height);
+                getDimensions(participant, &width, &height);
                 t = (width*height) / (2*k - 2);
                 shadowLen = 2*t;
                 shadows = allocateMatrix(k, shadowLen);
             }
 
-            BITMAPFILEHEADER * participantHeader = ReadBMFileHeader(participant);
+            fseek(participant, participantHeader->bfOffBits, SEEK_SET);
+
             preimages[processed] = participantHeader->bfReserved1;
             recoverShadow(participant, k, shadows[processed], shadowLen);
             processed++;
@@ -99,6 +97,9 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
         }
     }
 
+    FILE * outputFile = fopen(outputName, "w+");
+    fwrite(outputHeader, sizeof(uint8_t), offset, outputFile);
+
     for (int i = 0; i < t; i++){
         uint8_t * a_i = gauss(vm[i], preimages, k);
         uint8_t * b_i = gauss(vd[i], preimages, k);
@@ -109,15 +110,20 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
             exit(1);
         }
 
+        fwrite(a_i, sizeof(uint8_t), k, outputFile);
+        fwrite(&(b_i[2]), sizeof(uint8_t), k-2, outputFile);
 
+        free(a_i);
+        free(b_i);
     }
     
-    
+    fclose(outputFile);
     closedir(dir);
+    free(outputHeader);
     freeMatrix(shadows, shadowLen);
 }
 
-void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen){
+static void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen){
 
     // Para lsb2, leo de a 4
     // Para lsb4, leo de a 2

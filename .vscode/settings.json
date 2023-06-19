@@ -5,6 +5,7 @@
         "shadowgen.h": "c",
         "steganography.h": "c",
         "utils.h": "c",
-        "gauss.h": "c"
+        "gauss.h": "c",
+        "reconstruct.h": "c"
     }
 }

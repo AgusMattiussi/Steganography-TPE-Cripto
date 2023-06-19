@@ -232,6 +232,30 @@ int readHeaderSetOffset(FILE * image, long *width, long *height){
     return 1;
 }
 
+int getDimensions(FILE * image, long *width, long *height){
+    BITMAPCOREHEADER *bmCoreHeader = NULL;
+    BITMAPINFOHEADER *bmInfoHeader = NULL;
+    int headersize;
+
+    headersize = SizeOfInformationHeader(image);
+    if (headersize == 12) {
+        bmCoreHeader = ReadBMCoreHeader(image);
+    } else if (headersize == 40) {
+        bmInfoHeader = ReadBMInfoHeader(image);
+    } else {
+        printf("Unsupported BITMAP.\n");
+        return -1;
+    }
+
+    *width = headersize == 40 ? bmInfoHeader->biWidth : (long) bmCoreHeader->bcWidth;
+    *height = headersize == 40 ? bmInfoHeader->biHeight : (long) bmCoreHeader->bcHeight;
+
+    fseek(image, 0, SEEK_SET);
+    
+    // TODO: Chequear errores, tamanio de imagen etc
+    return 1;
+}
+
 void modifyReservedBit(FILE * image, unsigned short value){
     fseek(image, 6, SEEK_SET);
     fwrite(&value, sizeof(unsigned short), 1, image);
