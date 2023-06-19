@@ -6,7 +6,7 @@
 
 #define GROUP_MOD 251
 
-static uint8_t positiveMod(uint8_t n);
+static uint8_t positiveMod(int n);
 static uint8_t * solve(uint8_t ** m, int dim);
 
 uint8_t * gauss(uint8_t * y, uint8_t * x, int dim);
@@ -35,7 +35,7 @@ uint8_t * gauss(uint8_t * y, uint8_t * x, int dim){
     uint8_t ** gaussMatrix = allocateMatrix(dim, dim + 1);
 
     for (size_t i = 0; i < dim; i++){
-        for (size_t j = 0; i < dim; i++){
+        for (size_t j = 0; j < dim; j++){
             gaussMatrix[i][j] = positiveMod(((uint8_t) pow(x[i], j)));
         }
         gaussMatrix[i][dim] = positiveMod(y[i]);
@@ -56,8 +56,7 @@ void triangulate(uint8_t ** m, int dim){
 
         for (size_t j = i + 1; j < dim; j++){
             for (size_t k = i; k < dim + 1; k++){
-                m[j][k] -= m[i][k];
-                m[j][k] = positiveMod(m[j][k]);
+                m[j][k] = positiveMod(m[j][k] - m[i][k]);
             }
         }
     }
@@ -67,7 +66,7 @@ static uint8_t * solve(uint8_t ** m, int dim){
     uint8_t * solutions = calloc(dim, sizeof(int));
     
     for (int i = dim-1; i >= 0; i--){
-        uint8_t accum = m[i][dim];
+        int accum = m[i][dim];
 
         for (int j = dim-1; j > i; j--){
             accum -= m[i][j] * solutions[j];
@@ -80,8 +79,8 @@ static uint8_t * solve(uint8_t ** m, int dim){
 }
 
 
-static uint8_t positiveMod(uint8_t n){
-    uint8_t aux = n;
+static uint8_t positiveMod(int n){
+    int aux = n;
     while(aux < 0)
         aux += GROUP_MOD;
     return aux % GROUP_MOD;
