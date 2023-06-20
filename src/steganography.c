@@ -22,8 +22,8 @@ static void encoder(lsb_params_t params, uint8_t* image, size_t imageSize, size_
     uint8_t mask = params.mask;
     uint8_t off = params.ioff;
 
-    for (int i = offset, j = 0; i < imageSize && j < shadowsSize; i++) {
-        uint8_t shadowBit = (shadows[j] >> off) & mask;
+    for (int i = 0, j = 0; i < imageSize && j < shadowsSize; i++) {
+        /* uint8_t shadowBit = (shadows[j] >> off) & mask;
 
         image[i] &= ~mask;
         image[i] |= shadowBit;
@@ -32,7 +32,15 @@ static void encoder(lsb_params_t params, uint8_t* image, size_t imageSize, size_
         if (off < 0) {
             off += 8;
             j++;
-        }
+        } */
+
+        image[i] &= ~mask;
+        image[i] += shadows[j] & mask;
+        shadows[j] >>= params.ioff;
+
+        if(shadows[j] == 0)
+            j++;
+
     }
 }
 
@@ -73,9 +81,9 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
             
             BITMAPFILEHEADER * bmFileHeader = ReadBMFileHeader(participant);
 
-            size_t imageSize = bmFileHeader->bfSize-bmFileHeader->bfOffBits + 1;
+            size_t imageSize = bmFileHeader->bfSize - bmFileHeader->bfOffBits;
             
-            if(checkImageSize(width*heigth, imageSize-1)){
+            if(checkImageSize(width*heigth, imageSize)){
                 printf("File %s has a different size\n",  entry->d_name);
                 return EXIT_FAILURE;
             }

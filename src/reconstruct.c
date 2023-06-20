@@ -74,7 +74,7 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
                 //getDimensions(participant, &width, &height);
                 
                 t = (width*height) / (2*k - 2);
-                
+
                 shadowLen = 2*t;
                 shadows = allocateMatrix(k, shadowLen);
             }
@@ -93,6 +93,7 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
         
     }
     if (processed < k){
+        printf("Procese menos\n");
         // TODO: Salida con error
     }
 
@@ -111,14 +112,47 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
 
 
     for (int i = 0; i < t; i++){
-        uint8_t * a_i = gauss(vm[i], preimages, k);
-        uint8_t * b_i = gauss(vd[i], preimages, k);
 
+        
+
+        uint8_t * a_i = gauss(vm[i], preimages, k);
+
+        /* printf("Reconstruct: Solutions A = ");
+        for (size_t x = 0; x < k; x++)
+            {
+                printf("%hhx ", a_i[x]);
+            }
+        printf("\n"); */
+
+
+        uint8_t * b_i = gauss(vd[i], preimages, k);
+       /*  printf("Reconstruct: Solutions B = ");
+        for (size_t x = 0; x < k; x++)
+            {
+                printf("%hhx ", b_i[x]);
+            }
+        printf("\n"); */
+        
         /* if(checkRi(a_i[0], a_i[1], b_i[0], b_i[1]) == 0){
             //TODO: Manejar error
             printf("CHEATING DETECTED!!\n");
-            exit(1);
+            //break;
+        } else {
+            printf("No cheating :)\n");
         } */
+
+
+        for (size_t z = 0; z < k; z++){
+            if(a_i[z] >= GROUP_MOD){
+                printf("Ojo al piojo! a_i[%ld] = %hhx (%d) (en bloque = %d)\n",z, a_i[z],a_i[z], i);
+            }
+            if(b_i[z] >= GROUP_MOD){
+                printf("Ojo al piojo! b_i[%ld] = %hhx (%d) (en bloque = %d)\n",z, b_i[z],b_i[z], i);
+            }
+        }
+        
+        
+
         //printf("t=%d\n", i);
         fwrite(a_i, sizeof(uint8_t), k, outputFile);
         fwrite(&(b_i[2]), sizeof(uint8_t), k-2, outputFile);
@@ -174,6 +208,8 @@ static void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shad
 static int checkRi(uint8_t ai0, uint8_t ai1, uint8_t bi0, uint8_t bi1){
     int ri0 = -bi0 * modInverses[ai0];
     int ri1 = -bi1 * modInverses[ai1];
+
+    
 
     return ri0 == ri1;
 }

@@ -25,6 +25,7 @@ static uint8_t modInverses[GROUP_MOD] = {
 };
 
 uint8_t * gauss(uint8_t * y, uint8_t * x, int dim){
+    
     uint8_t ** gaussMatrix = allocateMatrix(dim, dim + 1);
 
     for (size_t i = 0; i < dim; i++){
@@ -69,8 +70,21 @@ static uint8_t * solve(uint8_t ** m, int dim){
         }
 
         solutions[i] = (positiveMod(accum) * modInverses[m[i][i]]) % GROUP_MOD;
+        if(solutions[i] >= GROUP_MOD){
+            printf("\n\nUna sol me dio %hhx (%d)\n\n", solutions[i], solutions[i]);
+        }
+
+        
+        
     }
-    
+
+    /* printf("Gauss: Solutions = ");
+    for (size_t x = 0; x < dim; x++)
+        {
+            printf("%hhx ", solutions[x]);
+        }
+    printf("\n"); */
+
    return solutions;
 }
 
