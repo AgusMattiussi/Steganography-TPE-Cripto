@@ -1,5 +1,7 @@
 #include "include/utils.h"
 
+
+
 const char *get_filename_ext(const char *filename) {
     const char *dot = strrchr(filename, '.');
     if(!dot || dot == filename) return "";
@@ -64,9 +66,11 @@ void print_binary_wrapper(unsigned int number){
     printf(" ");
 }
 
+
 uint8_t positiveMod(int n){
+    // Multiplicar por -(GROUP_MOD - 1) es equivalente a multiplicar por 1
     int aux = n;
-    while(aux < 0)
-        aux += GROUP_MOD;
+    if(aux < 0)
+        aux *= -(GROUP_MOD-1); //-250
     return aux % GROUP_MOD;
 }
