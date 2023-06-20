@@ -34,7 +34,7 @@ static const uint8_t modInverses[GROUP_MOD] = {
 const char *get_filename_ext(const char *filename);
 const int checkFileCount(DIR * dir);
 const int checkImageSize(long size1, long size2);
-char * getFullPath(const char *dirName, int dirNameLen, char *entryName);
+char * getFullPath(const char *dirName, char *entryName);
 uint8_t ** allocateMatrix(int rows, int cols);
 void freeMatrix(uint8_t ** m, long rows);
 void print_binary(unsigned int number);

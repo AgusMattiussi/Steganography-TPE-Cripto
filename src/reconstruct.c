@@ -4,39 +4,37 @@ static void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shad
 static int checkRi(uint8_t ai0, uint8_t ai1, uint8_t bi0, uint8_t bi1);
 
 void reconstruct(char * outputName, char * sourceDirName, int k){
-    DIR* dir = opendir(sourceDirName);
-    if(dir == NULL){
-        printf("malardo\n");
-        return;
-    }
+    long width, height, t, shadowLen;
     struct dirent * entry;
-
-    int dirNameLen = strlen(sourceDirName);
-
     char * fullPath;
     FILE * participant;
-    int processed = 0;
-
-    long width, height, t, shadowLen;
     uint8_t ** shadows = NULL;
-    uint8_t * preimages = malloc(sizeof(uint8_t) * k);
     uint8_t * outputHeader = NULL;
     int offset = 0;
 
+
+    DIR * dir = opendir(sourceDirName);
+    if(dir == NULL){
+        printf("Error: Directory does not exist\n");
+        return;
+    }
+
+    int processed = 0;
+    uint8_t * preimages = malloc(sizeof(uint8_t) * k);
     while(processed < k && ((entry = readdir(dir)) != NULL)){
+        BITMAPFILEHEADER * participantHeader;
         
         if (entry->d_type == DT_REG) {
 
-            fullPath = getFullPath(sourceDirName, dirNameLen, entry->d_name);
+            fullPath = getFullPath(sourceDirName, entry->d_name);
             
             participant = fopen(fullPath, "r");
             if(participant == NULL){
-                printf("Malardo 2\n");
+                printf("Error opening participant in %s\n", fullPath);
                 return;
             }
-            
 
-            BITMAPFILEHEADER * participantHeader = ReadBMFileHeader(participant);
+            participantHeader = ReadBMFileHeader(participant);
 
             if(outputHeader == NULL){
                 offset = participantHeader->bfOffBits;
@@ -61,13 +59,14 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
             preimages[processed] = participantHeader->bfReserved1;
             recoverShadow(participant, k, shadows[processed], shadowLen);
             processed++;
+            free(fullPath);
             fclose(participant);
         }
         
     }
     if (processed < k){
-        printf("Procese menos\n");
-        // TODO: Salida con error
+        printf("Error: Directory must contain at least %d (k) images\n", k);
+        return;
     }    
 
     uint8_t ** vm = allocateMatrix(t, k);
@@ -87,15 +86,8 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
     for (int i = 0; i < t; i++){
         uint8_t * a_i = gauss(vm[i], preimages, k);
         uint8_t * b_i = gauss(vd[i], preimages, k);
-        
-        for (size_t z = 0; z < k; z++){
-            if(a_i[z] >= GROUP_MOD){
-                printf("Ojo al piojo! a_i[%ld] = %hhx (%d) (en bloque = %d)\n",z, a_i[z],a_i[z], i);
-            }
-            if(b_i[z] >= GROUP_MOD){
-                printf("Ojo al piojo! b_i[%ld] = %hhx (%d) (en bloque = %d)\n",z, b_i[z],b_i[z], i);
-            }
-        }
+
+        //TODO: Check cheating
         
         fwrite(a_i, sizeof(uint8_t), k, outputFile);
         fwrite(&(b_i[2]), sizeof(uint8_t), k-2, outputFile);
@@ -129,7 +121,7 @@ static void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shad
 
         if(fread(buf, sizeof(uint8_t), bytesToRead, participant) < bytesToRead){
             // TODO: Manejar error
-            printf("Me falto leer \n");
+            printf("Could not completely read file\n");
             return;
         }
 

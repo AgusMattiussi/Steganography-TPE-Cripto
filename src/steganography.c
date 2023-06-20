@@ -59,13 +59,12 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
     struct dirent * entry;
     int j=0;
 
-    int dirNameLen = strlen(dirName);
     char *fullPath;
 
     while ((entry = readdir(dir)) != NULL) {
         if (entry->d_type == DT_REG) {
 
-            fullPath = getFullPath(dirName, dirNameLen, entry->d_name);
+            fullPath = getFullPath(dirName, entry->d_name);
             
             FILE * participant = fopen(fullPath, "r+");
             

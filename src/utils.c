@@ -28,14 +28,17 @@ const int checkImageSize(long size1, long size2){
     return size1 == size2? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-char * getFullPath(const char *dirName, int dirNameLen, char *entryName){
+char * getFullPath(const char *dirName, char *entryName){
+    int dirNameLen = strlen(dirName);
+
     char *fullPath = calloc(dirNameLen + strlen(entryName) + 2, sizeof(char));
+    
     strcat(fullPath, dirName);
-    if(fullPath[dirNameLen-1] == '/'){
-        fullPath[dirNameLen-1] = '\0';
+    if(fullPath[dirNameLen-1] != '/'){
+        strcat(fullPath, "/");
     }
-    strcat(fullPath, "/");
     strcat(fullPath, entryName);
+    
     return fullPath;
 }
 
