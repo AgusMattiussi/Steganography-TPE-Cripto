@@ -20,7 +20,6 @@ static const lsb_params_t LSB2 = {
 
 static void encoder(lsb_params_t params, uint8_t* image, size_t imageSize, size_t offset, uint8_t* shadows, size_t shadowsSize) {
     uint8_t mask = params.mask;
-    uint8_t off = params.ioff;
 
     for (int i = 0, j = 0; i < imageSize && j < shadowsSize; i++) {
         /* uint8_t shadowBit = (shadows[j] >> off) & mask;
@@ -36,7 +35,7 @@ static void encoder(lsb_params_t params, uint8_t* image, size_t imageSize, size_
 
         image[i] &= ~mask;
         image[i] += shadows[j] & mask;
-        shadows[j] >>= params.ioff;
+        shadows[j] >>= params.doff;
 
         if(shadows[j] == 0)
             j++;
