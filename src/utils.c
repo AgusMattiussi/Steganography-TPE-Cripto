@@ -55,3 +55,15 @@ void freeMatrix(uint8_t ** m, long rows){
     }
     free(m);
 }
+
+void print_binary(unsigned int number){
+    if (number >> 1) {
+        print_binary(number >> 1);
+    }
+    putc((number & 1) ? '1' : '0', stdout);
+}
+
+void print_binary_wrapper(unsigned int number){
+    print_binary(number);
+    printf(" ");
+}
