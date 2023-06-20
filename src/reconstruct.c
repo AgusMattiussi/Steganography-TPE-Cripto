@@ -22,7 +22,7 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
     int processed = 0;
     uint8_t * preimages = malloc(sizeof(uint8_t) * k);
     while(processed < k && ((entry = readdir(dir)) != NULL)){
-        BITMAPFILEHEADER * participantHeader;
+        BMP * current;
         
         if (entry->d_type == DT_REG) {
 
@@ -34,33 +34,33 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
                 return;
             }
 
-            participantHeader = ReadBMFileHeader(participant);
+            current = createBMP(participant);
 
             if(outputHeader == NULL){
-                offset = participantHeader->bfOffBits;
+                offset = current->fileHeader->bfOffBits;
                 outputHeader = malloc(sizeof(uint8_t) * offset);
-                fseek(participant, 0, SEEK_SET);
-                fread(outputHeader, sizeof(uint8_t), offset, participant);
+                copyHeader(outputHeader, current);
             }
 
             if(shadows == NULL){
-                fseek(participant, 0, SEEK_SET);
-                readHeaderSetOffset(participant, &width, &height);
-                fseek(participant, 0, SEEK_SET);
-                
+                width = current->info->biWidth;
+                height = current->info->biHeight;
+
                 t = (width*height) / (2*k - 2);
 
                 shadowLen = 2*t;
                 shadows = allocateMatrix(k, shadowLen);
             }
 
-            fseek(participant, participantHeader->bfOffBits, SEEK_SET);
+            setToOffset(current);
 
-            preimages[processed] = participantHeader->bfReserved1;
+            preimages[processed] = current->fileHeader->bfReserved1;
             recoverShadow(participant, k, shadows[processed], shadowLen);
             processed++;
+
             free(fullPath);
             fclose(participant);
+            freeBMP(current);
         }
         
     }
@@ -81,7 +81,6 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
 
     FILE * outputFile = fopen(outputName, "w+");
     fwrite(outputHeader, sizeof(uint8_t), offset, outputFile);
-
 
     for (int i = 0; i < t; i++){
         uint8_t * a_i = gauss(vm[i], preimages, k);

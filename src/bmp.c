@@ -7,18 +7,38 @@
 
 #include "include/bmp.h"
 
-static int SizeOfInformationHeader(FILE *fp);
-static BITMAPCOREHEADER *ReadBMCoreHeader(FILE *fp);
-static BITMAPINFOHEADER *ReadBMInfoHeader(FILE *fp);
+
+static BMPInfo *ReadBMInfoHeader(FILE *fp);
+static fileHeader *ReadBMFileHeader(FILE *fp);
+static void modifyFileReservedBit(FILE * image, unsigned short value);
 static unsigned short ReadLE2(FILE *fp);
 static unsigned int ReadLE4(FILE *fp);
+
+BMP * createBMP(FILE * image){
+    BMP * new = malloc(sizeof(BMP));
+
+    if(new != NULL){
+        new->fileHeader = ReadBMFileHeader(image);
+        new->info = ReadBMInfoHeader(image);
+        new->file = image;
+
+        setToOffset(new);
+    }
+
+    return new;
+}
+
+void freeBMP(BMP * bmp){
+    free(bmp->fileHeader);
+    free(bmp->info);
+    free(bmp);
+}
 
 /*
  * Read bitmap file header
  */
-BITMAPFILEHEADER *ReadBMFileHeader(FILE *fp)
-{
-    BITMAPFILEHEADER *header;
+static fileHeader * ReadBMFileHeader(FILE *fp) {
+    fileHeader *header;
     char           filetype[3] = {'\0', '\0', '\0'};
     unsigned int   filesize;
     unsigned short reserved1;
@@ -40,7 +60,7 @@ BITMAPFILEHEADER *ReadBMFileHeader(FILE *fp)
     /* Offset (4 bytes) */
     offset = (unsigned long) ReadLE4(fp);
 
-    header = (BITMAPFILEHEADER *) malloc(sizeof(BITMAPFILEHEADER));
+    header = (fileHeader *) malloc(sizeof(fileHeader));
     strcpy(header->bfType, filetype);
     header->bfSize      = filesize;
     header->bfReserved1 = reserved1;
@@ -50,68 +70,12 @@ BITMAPFILEHEADER *ReadBMFileHeader(FILE *fp)
     return header;
 }
 
-/*
- * Returns size of information header
- */
-static int SizeOfInformationHeader(FILE *fp)
-{
-    int headersize;
-    unsigned char buf[4];
-    int i;
-
-    fread(buf, 1, 4, fp);
-    for (i = 3; i >= 0; i--) {
-        headersize = (headersize << 8) | (int) buf[i];
-    }
-
-    fseek(fp, 14, SEEK_SET);
-
-    return headersize;
-}
-
-/*
- * Read bitmap core header (OS/2 bitmap)
- */
-static BITMAPCOREHEADER *ReadBMCoreHeader(FILE *fp)
-{
-    BITMAPCOREHEADER *header;
-    unsigned int   headersize;
-    int            width;
-    int            height;
-    unsigned short planes;
-    unsigned short bitcount;
-
-    /* Header size (4 bytes) */
-    headersize = (unsigned int) ReadLE4(fp);
-
-    /* Width (2 bytes) */
-    width = (int) ReadLE2(fp);
-
-    /* Height (2 bytes) */
-    height = (int) ReadLE2(fp);
-
-    /* Planes (2 bytes) */
-    planes = (unsigned short) ReadLE2(fp);
-
-    /* Bit Count (2 bytes) */
-    bitcount = (unsigned short) ReadLE2(fp);
-
-    header = (BITMAPCOREHEADER *) malloc(sizeof(BITMAPCOREHEADER));
-    header->bcSize     = headersize;
-    header->bcWidth    = width;
-    header->bcHeight   = height;
-    header->bcPlanes   = planes;
-    header->bcBitCount = bitcount;
-
-    return header;
-}
 
 /*
  * Read bitmap info header (Windows bitmap)
  */
-static BITMAPINFOHEADER *ReadBMInfoHeader(FILE *fp)
-{
-    BITMAPINFOHEADER *header;
+static BMPInfo * ReadBMInfoHeader(FILE *fp){
+    BMPInfo *header;
     unsigned int   headersize;
     int            width;
     int            height;
@@ -157,7 +121,7 @@ static BITMAPINFOHEADER *ReadBMInfoHeader(FILE *fp)
     /* Color important (4 bytes) */
     clr_important = (unsigned int) ReadLE4(fp);
 
-    header = (BITMAPINFOHEADER *) malloc(sizeof(BITMAPINFOHEADER));
+    header = (BMPInfo *) malloc(sizeof(BMPInfo));
     header->biSize         = headersize;
     header->biWidth        = width;
     header->biHeight       = height;
@@ -173,11 +137,58 @@ static BITMAPINFOHEADER *ReadBMInfoHeader(FILE *fp)
     return header;
 }
 
+void setFileToBMPOffset(FILE * image, BMP * bmp){
+    fseek(image, bmp->fileHeader->bfOffBits, SEEK_SET);
+}
+
+void setToOffset(BMP * bmp){
+    fseek(bmp->file, bmp->fileHeader->bfOffBits, SEEK_SET);
+}
+
+void modifyReservedBit(BMP * bmp, unsigned short value){
+    modifyFileReservedBit(bmp->file, value);
+}
+
+void copyHeader(uint8_t * dest, BMP * bmp){
+    long currentOffset = ftell(bmp->file);
+    fseek(bmp->file, 0, SEEK_SET);
+    fread(dest, sizeof(uint8_t), bmp->fileHeader->bfOffBits, bmp->file);
+    fseek(bmp->file, currentOffset, SEEK_SET);
+}
+
+static void modifyFileReservedBit(FILE * image, unsigned short value){
+    long currentOffset = ftell(image);
+    fseek(image, BF_RESERVED_1_POS, SEEK_SET);
+    fwrite(&value, sizeof(unsigned short), 1, image);
+    fseek(image, currentOffset, SEEK_SET);
+}
+
+void printBmpInfo(BMP * bmp){
+    
+    printf("File type          = %s\n", bmp->fileHeader->bfType);
+    printf("File size          = %d bytes\n", bmp->fileHeader->bfSize);
+    printf("Reserved bit 1     = %d bytes\n", bmp->fileHeader->bfReserved1);
+    printf("Reserved bit 2     = %d bytes\n", bmp->fileHeader->bfReserved2);
+    printf("Data offset        = %ld bytes\n", bmp->fileHeader->bfOffBits);
+
+    printf("Info header size   = %d bytes\n", bmp->info->biSize);
+    printf("Width              = %ld pixels\n", bmp->info->biWidth);
+    printf("Height             = %ld pixels\n", bmp->info->biHeight);
+    printf("Planes             = %d\n", bmp->info->biPlanes);
+    printf("Bit count          = %d bits/pixel\n", bmp->info->biBitCount);
+    printf("Compression        = %d\n", bmp->info->biCompression);
+    printf("Size image         = %d bytes\n", bmp->info->biSizeImage);
+    printf("X pixels per meter = %ld\n", bmp->info->biXPixPerMeter);
+    printf("Y pixels per meter = %ld\n", bmp->info->biYPixPerMeter);
+    printf("Color used         = %ld colors\n", bmp->info->biClrUsed);
+
+}
+
+
 /*
  * Read 2 bytes in little endian
  */
-static unsigned short ReadLE2(FILE *fp)
-{
+static unsigned short ReadLE2(FILE *fp) {
     unsigned char buf[2];
     unsigned short result = 0;
     int i;
@@ -193,8 +204,7 @@ static unsigned short ReadLE2(FILE *fp)
 /*
  * Read 4 bytes in little endian
  */
-static unsigned int ReadLE4(FILE *fp)
-{
+static unsigned int ReadLE4(FILE *fp) {
     unsigned char buf[4];
     unsigned int result = 0;
     int i;
@@ -205,80 +215,4 @@ static unsigned int ReadLE4(FILE *fp)
     }
 
     return result;
-}
-
-int readHeaderSetOffset(FILE * image, long *width, long *height){
-    BITMAPFILEHEADER *bmFileHeader = NULL;
-    BITMAPCOREHEADER *bmCoreHeader = NULL;
-    BITMAPINFOHEADER *bmInfoHeader = NULL;
-    int headersize;
-
-    bmFileHeader = ReadBMFileHeader(image);
-    headersize = SizeOfInformationHeader(image);
-    if (headersize == 12) {
-        bmCoreHeader = ReadBMCoreHeader(image);
-    } else if (headersize == 40) {
-        bmInfoHeader = ReadBMInfoHeader(image);
-    } else {
-        return -1;
-    }
-
-    *width = headersize == 40 ? bmInfoHeader->biWidth : (long) bmCoreHeader->bcWidth;
-    *height = headersize == 40 ? bmInfoHeader->biHeight : (long) bmCoreHeader->bcHeight;
-
-    fseek(image, bmFileHeader->bfOffBits, SEEK_SET);
-
-    return 1;
-}
-
-void modifyReservedBit(FILE * image, unsigned short value){
-    fseek(image, 6, SEEK_SET);
-    fwrite(&value, sizeof(unsigned short), 1, image);
-    fseek(image, 0, SEEK_SET);
-}
-
-void printBmpInfo(FILE * image){
-    BITMAPFILEHEADER *bmFileHeader = NULL;
-    BITMAPCOREHEADER *bmCoreHeader = NULL;
-    BITMAPINFOHEADER *bmInfoHeader = NULL;
-    int headersize;
-
-    bmFileHeader = ReadBMFileHeader(image);
-    if (strcmp(bmFileHeader->bfType, "BM") != 0) {
-        printf("Error: The file is not BITMAP.\n");
-        return;
-    }
-    headersize = SizeOfInformationHeader(image);
-    if (headersize == 12) {
-        bmCoreHeader = ReadBMCoreHeader(image);
-    } else if (headersize == 40) {
-        bmInfoHeader = ReadBMInfoHeader(image);
-    } else {
-        printf("Error: Unsupported BITMAP 1.\n");
-        return;
-    }
-
-    printf("File type          = %s\n", bmFileHeader->bfType);
-    printf("File size          = %d bytes\n", bmFileHeader->bfSize);
-    printf("Reserved bit 1     = %d bytes\n", bmFileHeader->bfReserved1);
-    printf("Reserved bit 2     = %d bytes\n", bmFileHeader->bfReserved2);
-    printf("Data offset        = %ld bytes\n", bmFileHeader->bfOffBits);
-    if (headersize == 12) {
-        printf("Info header size   = %d bytes\n", bmCoreHeader->bcSize);
-        printf("Width              = %d pixels\n", bmCoreHeader->bcWidth);
-        printf("Height             = %d pixels\n", bmCoreHeader->bcHeight);
-        printf("Planes             = %d\n", bmCoreHeader->bcPlanes);
-        printf("Bit count          = %d bits/pixel\n", bmCoreHeader->bcBitCount);
-    } else if (headersize == 40) {
-        printf("Info header size   = %d bytes\n", bmInfoHeader->biSize);
-        printf("Width              = %ld pixels\n", bmInfoHeader->biWidth);
-        printf("Height             = %ld pixels\n", bmInfoHeader->biHeight);
-        printf("Planes             = %d\n", bmInfoHeader->biPlanes);
-        printf("Bit count          = %d bits/pixel\n", bmInfoHeader->biBitCount);
-        printf("Compression        = %d\n", bmInfoHeader->biCompression);
-        printf("Size image         = %d bytes\n", bmInfoHeader->biSizeImage);
-        printf("X pixels per meter = %ld\n", bmInfoHeader->biXPixPerMeter);
-        printf("Y pixels per meter = %ld\n", bmInfoHeader->biYPixPerMeter);
-        printf("Color used         = %ld colors\n", bmInfoHeader->biClrUsed);
-    }
 }

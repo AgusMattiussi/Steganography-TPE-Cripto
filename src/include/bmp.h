@@ -14,19 +14,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
-typedef struct tagBITMAPFILEHEADER {
+#define BF_RESERVED_1_POS 6
+
+typedef struct fileHeader {
     char           bfType[3];    /* 2 bytes + null char */
     unsigned int   bfSize;       /* 4 bytes */
     unsigned short bfReserved1;  /* 2 bytes */
     unsigned short bfReserved2;  /* 2 bytes */
     unsigned long  bfOffBits;    /* 4 bytes */
-} BITMAPFILEHEADER;
+} fileHeader;
 
 /*
  * Bitmap info header (Windows)
  */
-typedef struct tagBITMAPINFOHEADER {
+typedef struct BMPInfo {
     unsigned int   biSize;          /* 4 bytes */
     long           biWidth;         /* 4 bytes */
     long           biHeight;        /* 4 bytes */
@@ -38,23 +41,21 @@ typedef struct tagBITMAPINFOHEADER {
     long           biYPixPerMeter;  /* 4 bytes */
     unsigned long  biClrUsed;       /* 4 bytes */
     unsigned long  biClrImportant;  /* 4 bytes */
-} BITMAPINFOHEADER;
+} BMPInfo;
 
-/*
- * Bitmap core header (OS/2)
- */
-typedef struct tagBITMAPCOREHEADER {
-    unsigned int   bcSize;      /* 4 bytes */
-    short          bcWidth;     /* 2 bytes */
-    short          bcHeight;    /* 2 bytes */
-    unsigned short bcPlanes;    /* 2 bytes */
-    unsigned short bcBitCount;  /* 2 bytes */
-} BITMAPCOREHEADER;
+typedef struct BMP {
+    fileHeader * fileHeader;
+    BMPInfo * info;
+    FILE * file;
+} BMP;
 
+BMP * createBMP(FILE * image);
+void freeBMP(BMP * bmp);
 
-int readHeaderSetOffset(FILE *image, long *width, long *height);
-BITMAPFILEHEADER *ReadBMFileHeader(FILE *fp);
-void modifyReservedBit(FILE *image, unsigned short value);
-void printBmpInfo(FILE *image);
+void modifyReservedBit(BMP * bmp, unsigned short value);
+void printBmpInfo(BMP * bmp);
+void setFileToBMPOffset(FILE * image, BMP * bmp);
+void setToOffset(BMP * bmp);
+void copyHeader(uint8_t * dest, BMP * bmp);
 
 #endif

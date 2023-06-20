@@ -53,7 +53,12 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
     }
 
     long width, heigth, shadowLen;
-    readHeaderSetOffset(file, &width, &heigth);
+
+    BMP * original = createBMP(file);
+    width = original->info->biWidth;
+    heigth = original->info->biHeight;
+
+
     uint8_t ** shadows = generateShadows(file, k, n, width, heigth, &shadowLen);
     
     struct dirent * entry;
@@ -63,14 +68,14 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
 
     while ((entry = readdir(dir)) != NULL) {
         if (entry->d_type == DT_REG) {
+            BMP * current;
 
             fullPath = getFullPath(dirName, entry->d_name);
             
             FILE * participant = fopen(fullPath, "r+");
-            
-            BITMAPFILEHEADER * bmFileHeader = ReadBMFileHeader(participant);
+            current = createBMP(participant);
 
-            size_t imageSize = bmFileHeader->bfSize - bmFileHeader->bfOffBits;
+            size_t imageSize = current->info->biSizeImage;
             
             if(checkImageSize(width*heigth, imageSize)){
                 printf("Error: File %s has a different size\n",  entry->d_name);
@@ -78,9 +83,7 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
             }
 
             uint8_t * imageBuffer = malloc(sizeof(uint8_t) * imageSize);
-
-            fseek(participant, bmFileHeader->bfOffBits, SEEK_SET);
-            fread(imageBuffer, sizeof(uint8_t), imageSize, participant);
+            fread(imageBuffer, sizeof(uint8_t), imageSize, current->file);
 
             if(k > LSB_MODE){
                 lsb2Encode(imageBuffer, imageSize, 0, shadows[j], shadowLen);
@@ -88,12 +91,15 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
                 lsb4Encode(imageBuffer, imageSize, 0, shadows[j], shadowLen);
             }
 
-            fseek(participant, bmFileHeader->bfOffBits, SEEK_SET);
-            fwrite(imageBuffer, sizeof(uint8_t), imageSize, participant);
+            setToOffset(current);
+            fwrite(imageBuffer, sizeof(uint8_t), imageSize, current->file);
 
-            modifyReservedBit(participant, j+1);
+            modifyReservedBit(current, j+1);
 
             j++;
+
+            free(fullPath);
+            freeBMP(current);
         }
     }
     closedir(dir);
