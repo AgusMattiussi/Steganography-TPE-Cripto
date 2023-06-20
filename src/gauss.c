@@ -24,39 +24,103 @@ static uint8_t modInverses[GROUP_MOD] = {
     193, 230, 114, 25, 223, 94, 215, 209, 50, 188, 167, 125, 250
 };
 
+//static int once = 0;
+
+void imprimirMatriz(uint8_t ** matriz, int dim) {
+    for (int i = 0; i < dim; i++) {
+        for (int j = 0; j < dim + 1; j++) {
+            printf("%d ", matriz[i][j]);
+        }
+        printf("\n");
+    }
+}
+
 uint8_t * gauss(uint8_t * y, uint8_t * x, int dim){
-    
     uint8_t ** gaussMatrix = allocateMatrix(dim, dim + 1);
 
-    for (size_t i = 0; i < dim; i++){
-        for (size_t j = 0; j < dim; j++){
-            gaussMatrix[i][j] = positiveMod(((uint8_t) pow(x[i], j)));
+    /* if(!once){
+        printf("y: ");
+        for (int i = 0; i < dim; i++){
+            printf("%d ", y[i]);
+        }
+        printf("\n");
+
+        printf("x: ");
+        for (int i = 0; i < dim; i++){
+            printf("%d ", x[i]);
+        }
+        printf("\n");
+    } */
+
+    for (int i = 0; i < dim; i++){
+        for (int j = 0; j < dim; j++){
+            gaussMatrix[i][j] = positiveMod(pow(x[i], j));
         }
         gaussMatrix[i][dim] = positiveMod(y[i]);
     }
+
+    /* if(!once){
+        printf("\n\n");
+        imprimirMatriz(gaussMatrix, dim);
+        printf("\n\n");
+    } */
     
     triangulate(gaussMatrix, dim);
+
+    /* if(!once){
+        printf("\n\n");
+        imprimirMatriz(gaussMatrix, dim);
+        printf("\n\n");
+    } */
+    
+    
 
     uint8_t * solutions = solve(gaussMatrix, dim);
     freeMatrix(gaussMatrix, dim);
     
+    //once++;
     return solutions;
 }
 
 void triangulate(uint8_t ** m, int dim){
-    for (size_t i = 0; i < dim - 1; i++){
-
+    for (int i = 0; i < dim - 1; i++){
+        /* if(!once){
+        printf("i = %d\n", i);} */
         uint8_t inverse = modInverses[m[i][i]];
-        for (size_t z = i; z < dim + 1; z++){
-            m[i][z] = (m[i][z] * inverse) % GROUP_MOD;
-        }
 
-        for (size_t j = i + 1; j < dim; j++){
-            for (size_t k = i; k < dim + 1; k++){
-                m[j][k] = positiveMod(m[j][k] - m[i][k]);
+        /* if(!once){
+        imprimirMatriz(m, dim);
+        printf("Multiplico por %d (inverso de %d)...\n", modInverses[m[i][i]], inverse);
+        } */
+        for (size_t z = i; z < dim + 1; z++){
+            /* if(!once)
+                printf("%d * %d MOD %d = ", m[i][z], inverse, GROUP_MOD); */
+            m[i][z] = (m[i][z] * inverse) % GROUP_MOD;
+            /* if(!once)
+                printf("%d\n", m[i][z]); */
+        }
+        /* if(!once){
+        imprimirMatriz(m, dim);
+        } */
+
+        for (int j = i + 1; j < dim; j++){
+            for (int k = i; k < dim + 1; k++){
+                /* if(!once){
+                    printf("i=%d, j=%d, k=%d\n", i, j, k);
+                    printf("%d - %d = %d --> %d\n\n", m[j][k], m[i][k],  m[j][k]-m[i][k], positiveMod(m[j][k] - m[i][k]));
+                } */
+                int ratio = m[j][i];
+                m[j][k] = positiveMod(m[j][k] - ratio * m[i][k]);
+                /* if(!once){
+                imprimirMatriz(m, dim);
+                } */
             }
         }
     }
+
+    /* if(!once){
+        imprimirMatriz(m, dim);
+    } */
 }
 
 static uint8_t * solve(uint8_t ** m, int dim){
