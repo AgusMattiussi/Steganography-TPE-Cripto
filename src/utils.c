@@ -74,3 +74,12 @@ uint8_t positiveMod(int n){
         aux *= -(GROUP_MOD-1); //-250
     return aux % GROUP_MOD;
 }
+
+void printMatrix(uint8_t ** matriz, int rows, int cols) {
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            printf("%d ", matriz[i][j]);
+        }
+        printf("\n");
+    }
+}

@@ -38,6 +38,7 @@ void freeMatrix(uint8_t ** m, long rows);
 void print_binary(unsigned int number);
 void print_binary_wrapper(unsigned int number);
 uint8_t positiveMod(int n);
+void printMatrix(uint8_t ** matriz, int rows, int cols);
 
 
 
