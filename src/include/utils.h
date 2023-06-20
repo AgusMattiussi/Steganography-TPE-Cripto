@@ -8,6 +8,8 @@
 #include <string.h>
 
 #define GROUP_MOD 251
+#define MIN_K 3
+#define MAX_K 8
 #define MOD_INVERSE(x) (modInverses[(x)])
 
 static const uint8_t modInverses[GROUP_MOD] = {

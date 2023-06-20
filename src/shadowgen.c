@@ -1,8 +1,5 @@
 #include "include/shadowgen.h"
 
-#define GROUP_MOD 251
-#define MAX_K 8
-
 static void blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, int n, int blockNum);
 static int generateB(uint8_t a, int r);
 static int generateR();
@@ -31,10 +28,9 @@ uint8_t ** generateShadows(FILE * image, int k, int n, long width, long height, 
     return shadows;
 }
 
-
 /*
-    Para recorrer cada bloque de la imagen (matriz) como si fuera unidimensional (array),
-    llevo un iterador total 'iter' y recorro la imagen de la forma image[iter/width][iter%width]
+ *  Para recorrer cada bloque de la imagen (matriz) como si fuera unidimensional (array),
+ *  llevo un iterador total 'iter' y recorro la imagen de la forma image[iter/width][iter%width]
 */
 static void blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, int n, int blockNum) {
     size_t aux = 0;
