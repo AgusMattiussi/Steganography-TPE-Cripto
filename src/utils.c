@@ -10,18 +10,14 @@ const int checkFileCount(DIR * dir){
     struct dirent * entry;
     int count = 0;
 
-    printf("Reading entries...\n");
     while ((entry = readdir(dir)) != NULL) {
         if(entry->d_type == DT_REG){
             if(strcmp("bmp", get_filename_ext(entry->d_name)) != 0 ){
-                printf("file %d is not bmp\n", count + 1);
                 return -1;
             }
-            printf("Entry Name: %s\n", entry->d_name);
             count++;
         }
     }
-    printf("\n =============================== \n");
 
     return count;   
 }
@@ -66,4 +62,11 @@ void print_binary(unsigned int number){
 void print_binary_wrapper(unsigned int number){
     print_binary(number);
     printf(" ");
+}
+
+uint8_t positiveMod(int n){
+    int aux = n;
+    while(aux < 0)
+        aux += GROUP_MOD;
+    return aux % GROUP_MOD;
 }

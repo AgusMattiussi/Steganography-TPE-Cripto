@@ -7,8 +7,6 @@
 #include <stdio.h>
 #include "utils.h"
 
-#define GROUP_MOD 251
-
 uint8_t * gauss(uint8_t * y, uint8_t * x, int dim);
 void triangulate(uint8_t ** m, int dim);
 

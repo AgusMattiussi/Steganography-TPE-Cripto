@@ -237,8 +237,6 @@ int getDimensions(FILE * image, long *width, long *height){
     BITMAPINFOHEADER *bmInfoHeader = NULL;
     int headersize;
 
-/*     fseek(image, 0, SEEK_SET); */
-
     headersize = SizeOfInformationHeader(image);
     if (headersize == 12) {
         bmCoreHeader = ReadBMCoreHeader(image);
@@ -254,7 +252,6 @@ int getDimensions(FILE * image, long *width, long *height){
 
     fseek(image, 0, SEEK_SET);
     
-    // TODO: Chequear errores, tamanio de imagen etc
     return 1;
 }
 

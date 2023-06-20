@@ -22,26 +22,6 @@ static uint8_t modInverses[GROUP_MOD] = {
     193, 230, 114, 25, 223, 94, 215, 209, 50, 188, 167, 125, 250
 };
 
-static uint8_t positiveMod(int n){
-    int aux = n;
-    while(aux < 0)
-        aux += GROUP_MOD;
-    return aux % GROUP_MOD;
-}
-
-void print_binary(unsigned int number)
-{
-    if (number >> 1) {
-        print_binary(number >> 1);
-    }
-    putc((number & 1) ? '1' : '0', stdout);
-}
-
-void print_binary_wrapper(unsigned int number){
-    print_binary(number);
-    printf("\n");
-}
-
 void reconstruct(char * outputName, char * sourceDirName, int k){
     DIR* dir = opendir(sourceDirName);
     if(dir == NULL){
@@ -52,7 +32,6 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
 
     int dirNameLen = strlen(sourceDirName);
 
-    
     char * fullPath;
     FILE * participant;
     int processed = 0;
@@ -79,7 +58,6 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
             BITMAPFILEHEADER * participantHeader = ReadBMFileHeader(participant);
 
             if(outputHeader == NULL){
-                // TODO: -1?
                 offset = participantHeader->bfOffBits;
                 outputHeader = malloc(sizeof(uint8_t) * offset);
                 fseek(participant, 0, SEEK_SET);
@@ -90,7 +68,6 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
                 fseek(participant, 0, SEEK_SET);
                 readHeaderSetOffset(participant, &width, &height);
                 fseek(participant, 0, SEEK_SET);
-                //getDimensions(participant, &width, &height);
                 
                 t = (width*height) / (2*k - 2);
 
@@ -98,13 +75,8 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
                 shadows = allocateMatrix(k, shadowLen);
             }
 
-            printf("%s -> %ld x %ld\n", fullPath, width, height);
-            printf("t = %ld\n", t);
-            printf("offset = %ld\n", participantHeader->bfOffBits);
-
             fseek(participant, participantHeader->bfOffBits, SEEK_SET);
 
-            printf("bfreserved1 = %d\n", participantHeader->bfReserved1);
             preimages[processed] = participantHeader->bfReserved1;
             recoverShadow(participant, k, shadows[processed], shadowLen);
             processed++;
@@ -115,19 +87,11 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
     if (processed < k){
         printf("Procese menos\n");
         // TODO: Salida con error
-    }
-
-    printf("preimages: \n");
-    for (size_t i = 0; i < k; i++)
-    {
-        printf("%d ", preimages[i]);
-    }
-    printf("\n");
-    
+    }    
 
     uint8_t ** vm = allocateMatrix(t, k);
     uint8_t ** vd = allocateMatrix(t, k);
-    // TODO: A chequear
+
     for (int j = 0; j < k; j++) {
         for (int i = 0; i < shadowLen; i += 2) {
             vm[i/2][j] = shadows[j][i];
@@ -140,80 +104,9 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
 
 
     for (int i = 0; i < t; i++){
-
         uint8_t * a_i = gauss(vm[i], preimages, k);
-        /* printf("Reconstruct: Solutions A = ");
-        for (size_t x = 0; x < k; x++)
-            {
-                printf("%hhx ", a_i[x]);
-            }
-        printf("\n"); */
-
-
         uint8_t * b_i = gauss(vd[i], preimages, k);
-        /* printf("Reconstruct: Solutions B = ");
-        for (size_t x = 0; x < k; x++)
-            {
-                printf("%hhx ", b_i[x]);
-            }
-        printf("\n"); */ 
         
-        /* if(checkRi(a_i[0], a_i[1], b_i[0], b_i[1]) == 0){
-            //TODO: Manejar error
-            printf("CHEATING DETECTED!!\n");
-            //break;
-        } else {
-            printf("No cheating :)\n");
-        }
-        */
-
-
-  
-        /* if(i == 33){
-            printf("vm: ");
-            for (int x = 0; x < k; x++){
-                printf("%hhx(%d) ", vm[i][x], vm[i][x]);
-            }
-            printf("\n");
-
-            printf("ai: ");
-            for (int x = 0; x < k; x++){
-                printf("%hhx(%d) ", a_i[x], a_i[x]);
-            }
-            printf("\n");
-
-            printf("vd: ");
-            for (int x = 0; x < k; x++){
-                printf("%hhx(%d) ", vd[i][x], vd[i][x]);
-            }
-            printf("\n");
-
-            printf("bi: ");
-            for (int x = 0; x < k; x++){
-                printf("%hhx(%d) ", b_i[x], b_i[x]);
-            }
-            printf("\n");
-
-            
-        } */
-
-        /* if(i == 33){
-            printf("i = %d\n", i);
-            if(a_i[0] == 0){
-                printf("Error: a_i[0] == 0\n");
-            }
-            if(a_i[1] == 0){
-                printf("Error: a_i[1] == 0\n");
-            }
-            if(b_i[0] == 0){
-                printf("Error: b_i[0] == 0\n");
-            }
-            if(b_i[1] == 0){
-                printf("Error: b_i[1] == 0\n");
-        }
-        } */
-        
-
         for (size_t z = 0; z < k; z++){
             if(a_i[z] >= GROUP_MOD){
                 printf("Ojo al piojo! a_i[%ld] = %hhx (%d) (en bloque = %d)\n",z, a_i[z],a_i[z], i);
@@ -223,18 +116,12 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
             }
         }
         
-        
-
-        //printf("t=%d\n", i);
         fwrite(a_i, sizeof(uint8_t), k, outputFile);
         fwrite(&(b_i[2]), sizeof(uint8_t), k-2, outputFile);
 
         free(a_i);
         free(b_i);
     }
-
-    /* fseek(outputFile, 0, SEEK_SET);
-    printBmpInfo(outputFile); */
 
     fclose(outputFile);
     closedir(dir);
@@ -243,9 +130,6 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
 }
 
 static void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen){
-    //static int lol = 0;
-    // Para lsb2, leo de a 4
-    // Para lsb4, leo de a 2
     uint8_t lsbValue, lsbMask, bytesToRead;
 
     if(k <= 4){
@@ -268,24 +152,11 @@ static void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shad
             return;
         }
 
-        /* if(lol == 0){
-            for (size_t x = 0; x < bytesToRead; x++)
-            {
-                printf("buf[%ld] = %hhx\n", x, buf[x]);
-                print_binary_wrapper(buf[x]);
-            }
-        } */
-
         for (int j = 0; j < bytesToRead; j++){
             shadowByte <<= lsbValue;
             shadowByte += buf[j] & lsbMask;
         }
         
-        /* if(lol == 0){
-            printf("shadowbyte = %hhx \n", shadowByte);
-            print_binary_wrapper(shadowByte);
-            lol = 1;
-        } */
         shadow[i] = shadowByte;
     }
 }
@@ -293,13 +164,6 @@ static void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shad
 static int checkRi(uint8_t ai0, uint8_t ai1, uint8_t bi0, uint8_t bi1){
     int ri0 = -bi0 * modInverses[ai0];
     int ri1 = -bi1 * modInverses[ai1];
-
-    // printf("ri0 = -%hhx (%d) * %hhx (%d) | modInverse[%d]\n", bi0, bi0,
-    // modInverses[ai0], modInverses[ai0], ai0);
-    // printf("ri0 = -%hhx (%d) * %hhx (%d) | modInverse[%d]\n", bi1, bi1,
-    // modInverses[ai1], modInverses[ai1], ai1);
-
-    // printf("%d == %d\n?", ri0, ri1);
 
     return positiveMod(ri0) == positiveMod(ri1);
 }
