@@ -48,7 +48,7 @@ void lsb4Encode(uint8_t *image, size_t imageSize, size_t offset, uint8_t *shadow
 int hideSecret(const char *dirName, FILE *file, int n, int k) {
     DIR *dir = opendir(dirName);
     if(dir == NULL){
-        printf("Directory does not exist\n");
+        printf("Error: Directory does not exist\n");
         return EXIT_FAILURE;
     }
 
@@ -74,7 +74,7 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
             size_t imageSize = bmFileHeader->bfSize - bmFileHeader->bfOffBits;
             
             if(checkImageSize(width*heigth, imageSize)){
-                printf("File %s has a different size\n",  entry->d_name);
+                printf("Error: File %s has a different size\n",  entry->d_name);
                 return EXIT_FAILURE;
             }
 

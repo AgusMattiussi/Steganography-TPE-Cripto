@@ -29,30 +29,31 @@ int main(int argc, char *argv[]) {
     int k, n = 0;
 
     if(argc != 5){
-        printf("Wrong number of arguments\n");
+        printf("Error: Wrong number of arguments\n");
+        return EXIT_FAILURE;
     }
 
     k = atoi(argv[3]);
-    if(k < 3 || k > 8){
-        printf("k must be between 3 and 8\n");
+    if(k < MIN_K || k > MAX_K){
+        printf("Error: k must be between 3 and 8\n");
         return EXIT_FAILURE;
     }
 
     if(strcmp("bmp", get_filename_ext(argv[2])) != 0){
-        printf("file must have .bmp extension\n");
+        printf("Error: File must have .bmp extension\n");
         return EXIT_FAILURE;
     }
     filename = argv[2];
 
     dir = opendir(argv[4]);
     if(dir == NULL){
-        printf("Directory does not exist\n");
+        printf("Error: Directory does not exist\n");
         return EXIT_FAILURE;
     }
 
     n = checkFileCount(dir);
     if(n < k){
-        printf("Directory must contain at least k = %d .bmp images (contains %d)\n", k, n);
+        printf("Error: Directory must contain at least k = %d .bmp images (contains %d)\n", k, n);
         return EXIT_FAILURE;
     }
     closedir(dir);
@@ -60,14 +61,12 @@ int main(int argc, char *argv[]) {
     if(strcmp(argv[1], "d") == 0){
         file = fopen(filename, "r");
         if(file == NULL){
-            printf("Image file does not exist\n");
+            printf("Error: Image file does not exist\n");
             return EXIT_FAILURE;
         }
         hideSecret(argv[4], file, n, k);
         fclose(file);
     } else if (strcmp(argv[1], "r") == 0){
-        // TODO: Recover
-        // TODO: Chequear que las imagenes sean del mismo tamanio entre si
         reconstruct(filename, argv[4], k);
     } else {
         printf("Error: First argument must be either 'd' or 'r'");

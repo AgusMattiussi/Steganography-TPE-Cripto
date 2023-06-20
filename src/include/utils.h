@@ -8,6 +8,8 @@
 #include <string.h>
 
 #define GROUP_MOD 251
+#define MIN_K 3
+#define MAX_K 8
 
 const char *get_filename_ext(const char *filename);
 const int checkFileCount(DIR * dir);

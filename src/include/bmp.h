@@ -56,6 +56,5 @@ int readHeaderSetOffset(FILE *image, long *width, long *height);
 BITMAPFILEHEADER *ReadBMFileHeader(FILE *fp);
 void modifyReservedBit(FILE *image, unsigned short value);
 void printBmpInfo(FILE *image);
-int getDimensions(FILE *image, long *width, long *height);
 
 #endif
