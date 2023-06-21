@@ -43,6 +43,11 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
     long shadowLen;
     BMP * original = createBMP(file);
     uint8_t ** shadows = generateShadows(file, k, n, original->info->biSizeImage, &shadowLen);
+
+    if(shadows == NULL){
+        printf("Error: Could not generate shadows for hiding secret\n");
+        return EXIT_FAILURE;
+    }
     
     struct dirent * entry;
     int processed = 0;

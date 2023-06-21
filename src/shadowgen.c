@@ -1,10 +1,11 @@
 #include "include/shadowgen.h"
 
-static void blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, int n, int blockNum);
+static int blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, int n, int blockNum);
 static int generateB(uint8_t a, int r);
 static int generateR();
 
 uint8_t ** generateShadows(FILE * image, int k, int n, long imageSize, long * shadowLen) {
+    int retValue = EXIT_SUCCESS;
     int t = imageSize/(2*k - 2);
     *shadowLen = 2*t;
 
@@ -12,7 +13,9 @@ uint8_t ** generateShadows(FILE * image, int k, int n, long imageSize, long * sh
     uint8_t ** vd = allocateMatrix(t, n);
 
     for (int i = 0; i < t; i++) {
-        blockSubshadow(image, vm, vd, k, n, i);
+        if(blockSubshadow(image, vm, vd, k, n, i) == EXIT_FAILURE){
+            retValue = EXIT_FAILURE;
+        }
     }
 
     uint8_t ** shadows = allocateMatrix(n, *shadowLen);
@@ -25,7 +28,7 @@ uint8_t ** generateShadows(FILE * image, int k, int n, long imageSize, long * sh
     freeMatrix(vm, t);
     freeMatrix(vd, t); 
 
-    return shadows;
+    return retValue == EXIT_SUCCESS? shadows : NULL;
 }
 
 void freeShadows(uint8_t ** shadows, long shadowLen){
@@ -33,12 +36,13 @@ void freeShadows(uint8_t ** shadows, long shadowLen){
 }
 
 /* Computes sub-shadows v_ij = {vm[i][j], vd[i][j]} */
-static void blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, int n, int blockNum) {
+static int blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, int n, int blockNum) {
     uint64_t resultF, resultG;
     uint8_t buffer[MAX_K] = {0};
 
     if(fread(buffer, sizeof(uint8_t), k, image) < k){
-        printf("Error: leyo menos de %d(k)\n", k);
+        printf("Error: Could not read %d(k) bytes of image\n", k);
+        return EXIT_FAILURE;
     }
     
     /* Evaluates the a_i pixels polynomial for each j and stores it in vm */
@@ -56,7 +60,8 @@ static void blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, in
     uint8_t b1 = generateB(buffer[1], r);
     
     if(fread(buffer, sizeof(uint8_t), k-2, image) < k-2){
-        printf("Error: leyo menos de %d(k-2)\n", k-2);
+        printf("Error: Could not read %d(k-2) bytes of image\n", k-2);
+        return EXIT_FAILURE;
     }
 
     /* Evaluates the b_i pixels polynomial for each j and stores it in vd */
@@ -67,7 +72,7 @@ static void blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, in
         }
         vd[blockNum][j-1] = resultG % GROUP_MOD;
     }
-
+    return EXIT_SUCCESS;
 }
 
 /* Used for generating b_0 and b_1 for each block */
