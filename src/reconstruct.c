@@ -1,6 +1,6 @@
 #include "include/reconstruct.h"
 
-static void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen);
+static int recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen);
 static int checkRi(uint8_t ai0, uint8_t ai1, uint8_t bi0, uint8_t bi1);
 static void recoverV(uint8_t ** vm, uint8_t ** vd, uint8_t ** shadows, int k, int shadowLen);
 static void initializeOutputHeader(BMP * firstBmp);
@@ -14,11 +14,11 @@ static int offset = 0;                  // Output file offset
 static long t = 0;                      // Block count
 
 
-void reconstruct(char * outputName, char * sourceDirName, int k){
+int reconstruct(char * outputName, char * sourceDirName, int k){
     DIR * dir = opendir(sourceDirName);
     if(dir == NULL){
         printf("Error: Directory does not exist\n");
-        return;
+        return EXIT_FAILURE;
     }
 
     struct dirent * entry;
@@ -36,8 +36,8 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
             
             participant = fopen(fullPath, "r");
             if(participant == NULL){
-                printf("Error opening participant in %s\n", fullPath);
-                return;
+                printf("Error: Could not open participant in %s\n", fullPath);
+                return EXIT_FAILURE;
             }
 
             current = createBMP(participant);
@@ -51,7 +51,10 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
             /* Stores current x's value (from bfReserved1 byte) */
             preimages[processed] = current->fileHeader->bfReserved1;
             /* Recovers shadow for this participant image and store it in **shadows */
-            recoverShadow(participant, k, shadows[processed], shadowLen);
+            if(recoverShadow(participant, k, shadows[processed], shadowLen) == EXIT_FAILURE){
+                printf("Error: Could not recover shadow from %s\n", fullPath);
+                return EXIT_FAILURE;
+            }
             
             processed++;
             free(fullPath);
@@ -62,7 +65,7 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
     }
     if (processed < k){
         printf("Error: Directory must contain at least %d (k) images\n", k);
-        return;
+        return EXIT_FAILURE;
     }    
 
     /* Stores each v_ij = {m_ij, d_ij} in vm and vd respectively */
@@ -83,7 +86,9 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
 
         /* Checks for cheating */
         if(checkRi(a_i[0], a_i[1], b_i[0], b_i[1]) == 0){
-            printf("Cheating detected! (i=%d)\n ", i);
+            // printf("Cheating detected! (i=%d)\n ", i);
+            printf("Error: Cheating detected\n");
+            return EXIT_FAILURE;
         }
         
         /* If not cheating, writes pixels to output file */
@@ -96,6 +101,8 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
     free(preimages);
     free(outputHeader);
     freeMatrix(shadows, k);
+
+    return EXIT_SUCCESS;
 }
 
 
@@ -126,7 +133,7 @@ static void recoverV(uint8_t ** vm, uint8_t ** vd, uint8_t ** shadows, int k, in
 }
 
 /* Recovers shadow bytes stored in each file and stores them in *shadow */
-static void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen){
+static int recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen){
     lsb_params_t lsb = k <= 4 ? LSB4 : LSB2;
 
     uint8_t buf[lsb.bytesToRead]; // Stores bytes from the image needed to reconstruct shadow
@@ -134,9 +141,8 @@ static void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shad
         uint8_t shadowByte = 0x00;
 
         if(fread(buf, sizeof(uint8_t), lsb.bytesToRead, participant) < lsb.bytesToRead){
-            // TODO: Manejar error
-            printf("Could not completely read file\n");
-            return;
+            printf("Error: Could not completely read file\n");
+            return EXIT_FAILURE;
         }
 
         /* Recovers shadow byte shifting image bytes */
@@ -147,6 +153,7 @@ static void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shad
         
         shadow[i] = shadowByte;
     }
+    return EXIT_SUCCESS;
 }
 
 /* Checks if there is an r_i that satisfies a_i0 * r_i + b_i0 = 0

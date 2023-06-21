@@ -71,7 +71,10 @@ int main(int argc, char *argv[]) {
         }
         fclose(file);
     } else if (strcmp(argv[1], "r") == 0){
-        reconstruct(filename, argv[4], k);
+        if(reconstruct(filename, argv[4], k) == EXIT_FAILURE){
+            printf("Error: Could not recover secret\n");
+            return EXIT_FAILURE;
+        }
     } else {
         printf("Error: First argument must be either 'd' or 'r'");
         return EXIT_FAILURE;

@@ -41,7 +41,7 @@ static int blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, int
     uint8_t buffer[MAX_K] = {0};
 
     if(fread(buffer, sizeof(uint8_t), k, image) < k){
-        printf("Error: Could not read %d(k) bytes of image\n", k);
+        printf("Error: Could not completely read file\n");
         return EXIT_FAILURE;
     }
     
@@ -60,7 +60,7 @@ static int blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, int
     uint8_t b1 = generateB(buffer[1], r);
     
     if(fread(buffer, sizeof(uint8_t), k-2, image) < k-2){
-        printf("Error: Could not read %d(k-2) bytes of image\n", k-2);
+        printf("Error: Could not completely read file\n");
         return EXIT_FAILURE;
     }
 
