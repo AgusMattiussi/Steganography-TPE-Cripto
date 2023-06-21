@@ -64,7 +64,11 @@ int main(int argc, char *argv[]) {
             printf("Error: Image file does not exist\n");
             return EXIT_FAILURE;
         }
-        hideSecret(argv[4], file, n, k);
+        if(hideSecret(argv[4], file, n, k) == EXIT_FAILURE){
+            printf("Error: Could not hide the secret\n");
+            fclose(file);
+            return EXIT_FAILURE;
+        }
         fclose(file);
     } else if (strcmp(argv[1], "r") == 0){
         reconstruct(filename, argv[4], k);
@@ -73,6 +77,5 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    printf("Success!\n");
     return EXIT_SUCCESS;
 }

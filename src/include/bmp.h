@@ -50,12 +50,17 @@ typedef struct BMP {
 } BMP;
 
 BMP * createBMP(FILE * image);
+
 void freeBMP(BMP * bmp);
 
 void modifyReservedBit(BMP * bmp, unsigned short value);
+
 void printBmpInfo(BMP * bmp);
+
 void setFileToBMPOffset(FILE * image, BMP * bmp);
+
 void setToOffset(BMP * bmp);
+
 void copyHeader(uint8_t * dest, BMP * bmp);
 
 #endif

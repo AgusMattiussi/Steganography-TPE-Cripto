@@ -2,7 +2,6 @@
 
 static uint8_t * solve(uint8_t ** m, int dim);
 
-
 uint8_t * gauss(uint8_t * y, uint8_t * x, int dim){
     /* Reserva espacio para la matriz extendida*/
     uint8_t ** gaussMatrix = allocateMatrix(dim, dim + 1);
