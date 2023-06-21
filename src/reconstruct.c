@@ -86,8 +86,7 @@ int reconstruct(char * outputName, char * sourceDirName, int k){
 
         /* Checks for cheating */
         if(checkRi(a_i[0], a_i[1], b_i[0], b_i[1]) == 0){
-            // printf("Cheating detected! (i=%d)\n ", i);
-            printf("Error: Cheating detected\n");
+            printf("Error: Cheating detected\n", i);
             return EXIT_FAILURE;
         }
         
@@ -159,9 +158,10 @@ static int recoverShadow(FILE * participant, int k, uint8_t * shadow, long shado
 /* Checks if there is an r_i that satisfies a_i0 * r_i + b_i0 = 0
    and a_i1 * r_i + b_i1 = 0 */
 static int checkRi(uint8_t ai0, uint8_t ai1, uint8_t bi0, uint8_t bi1){
-    int ri0 = -bi0 * MOD_INVERSE(ai0);
-    int ri1 = -bi1 * MOD_INVERSE(ai1);
+    int ri0 = -bi0 * MOD_INVERSE(NON_ZERO(ai0));
+    int ri1 = -bi1 * MOD_INVERSE(NON_ZERO(ai1));
 
     return positiveMod(ri0) == positiveMod(ri1);
+
 }
 

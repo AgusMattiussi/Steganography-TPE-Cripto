@@ -57,10 +57,10 @@ void freeMatrix(uint8_t ** m, int rows){
 }
 
 uint8_t positiveMod(int n){
-    // Multiply by -(GROUP_MOD - 1) if equivalent to multiply by 1
+    // Multiplying by -(GROUP_MOD - 1) is equivalent to multiplying by 1
     int aux = n;
     if(aux < 0)
-        aux *= -(GROUP_MOD-1); //-250
+        aux *= (-1)*(GROUP_MOD-1); //-250
     return aux % GROUP_MOD;
 }
 

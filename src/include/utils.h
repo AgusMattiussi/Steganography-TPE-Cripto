@@ -12,6 +12,7 @@
 #define MAX_K 8
 #define MOD_INVERSE(x) (modInverses[(x)])   // Gets modular inverse for x
 #define IS_FILE(x) ((x) == DT_REG)          // Checks if entry x is a file
+#define NON_ZERO(a) (((a) % GROUP_MOD) == 0 ? 1 : (a)) // Returns 1 if 'a' % GROUP_MOD is 0 or 'a' instead
 
 /* Modular inverses table for GROUP_MOD = 251 */
 static const uint8_t modInverses[GROUP_MOD] = {

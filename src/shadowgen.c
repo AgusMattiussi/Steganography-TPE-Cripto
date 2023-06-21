@@ -1,7 +1,7 @@
 #include "include/shadowgen.h"
 
 static int blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, int n, int blockNum);
-static int generateB(uint8_t a, int r);
+static uint8_t generateB(uint8_t a, int r);
 static int generateR();
 
 uint8_t ** generateShadows(FILE * image, int k, int n, long imageSize, long * shadowLen) {
@@ -76,8 +76,8 @@ static int blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, int
 }
 
 /* Used for generating b_0 and b_1 for each block */
-static int generateB(uint8_t a, int r) {
-    uint8_t aux = a == 0 ? 1 : a;
+static uint8_t generateB(uint8_t a, int r) {
+    uint8_t aux = NON_ZERO(a);
     return positiveMod(-(r*aux));
 }
 
