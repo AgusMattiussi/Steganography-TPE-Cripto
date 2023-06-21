@@ -26,6 +26,8 @@ BMP * createBMP(FILE * image){
 }
 
 void freeBMP(BMP * bmp){
+    if(bmp == NULL)
+        return;
     free(bmp->fileHeader);
     free(bmp->info);
     free(bmp);

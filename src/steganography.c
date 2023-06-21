@@ -50,18 +50,40 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
     while ((entry = readdir(dir)) != NULL) {
         if (IS_FILE(entry->d_type)) {
             char * fullPath = getFullPath(dirName, entry->d_name);
+            if(fullPath == NULL){
+                break;
+            }
+
             FILE * participant = fopen(fullPath, "r+");
+            if(participant == NULL){
+                free(fullPath);
+                break;
+            }
+
             BMP * current = createBMP(participant);
+            if(participant == NULL){
+                fclose(participant);
+                free(fullPath);
+                break;
+            }
 
             /* Verifies host image's size is equal to the original's size */
             size_t imageSize = current->info->biSizeImage;
             if(original->info->biSizeImage != imageSize){
-                printf("Error: File %s has a different size\n",  entry->d_name);
-                return EXIT_FAILURE;
+                freeBMP(current);
+                fclose(participant);
+                free(fullPath);
+                break;            
             }
 
             /* Copies image bytes into buffer for easier modification */
             uint8_t * imageBuffer = getImageDataCopy(current);
+            if(imageBuffer == NULL){
+                freeBMP(current);
+                fclose(participant);
+                free(fullPath);
+                break;
+            }
 
             /* Encode according to k */
             if(k > LSB_MODE)
@@ -70,7 +92,14 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
                 lsb4Encode(imageBuffer, imageSize, shadows[processed], shadowLen);
             
             /* Overwrite image (from offset) with encoded bytes */
-            fwrite(imageBuffer, sizeof(uint8_t), imageSize, current->file);
+            if(fwrite(imageBuffer, sizeof(uint8_t), imageSize, current->file) < imageSize){
+                free(imageBuffer);
+                freeBMP(current);
+                fclose(participant);
+                free(fullPath);
+                break;
+            }
+
             /* Write image processing order (x value) to bfReserved1 byte */
             modifyReservedBit(current, processed + 1);
 
@@ -81,6 +110,9 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
             freeBMP(current);
         }
     }
+
+    freeBMP(original);
+    freeShadows(shadows, n);
     closedir(dir);
-    return EXIT_SUCCESS;
+    return processed == n ? EXIT_SUCCESS : EXIT_FAILURE;
 }
