@@ -1,18 +1,19 @@
 #include "include/utils.h"
 
-const char *get_filename_ext(const char *filename) {
+const char *getExtension(const char *filename) {
     const char *dot = strrchr(filename, '.');
-    if(!dot || dot == filename) return "";
+    if(!dot || dot == filename)
+        return "";
     return dot + 1;
 }
 
-const int checkFileCount(DIR * dir){
+int checkFileCount(DIR * dir){
     struct dirent * entry;
     int count = 0;
 
     while ((entry = readdir(dir)) != NULL) {
         if(entry->d_type == DT_REG){
-            if(strcmp("bmp", get_filename_ext(entry->d_name)) != 0 ){
+            if(strcmp("bmp", getExtension(entry->d_name)) != 0 ){
                 return -1;
             }
             count++;
@@ -20,10 +21,6 @@ const int checkFileCount(DIR * dir){
     }
 
     return count;   
-}
-
-const int checkImageSize(long size1, long size2){
-    return size1 == size2? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 char * getFullPath(const char *dirName, char *entryName){
@@ -48,25 +45,12 @@ uint8_t ** allocateMatrix(int rows, int cols){
     return m;
 }
 
-void freeMatrix(uint8_t ** m, long rows){
+void freeMatrix(uint8_t ** m, int rows){
     for (int i = 0; i < rows; i++){
         free(m[i]);
     }
     free(m);
 }
-
-void print_binary(unsigned int number){
-    if (number >> 1) {
-        print_binary(number >> 1);
-    }
-    putc((number & 1) ? '1' : '0', stdout);
-}
-
-void print_binary_wrapper(unsigned int number){
-    print_binary(number);
-    printf(" ");
-}
-
 
 uint8_t positiveMod(int n){
     // Multiplicar por -(GROUP_MOD - 1) es equivalente a multiplicar por 1
@@ -76,11 +60,3 @@ uint8_t positiveMod(int n){
     return aux % GROUP_MOD;
 }
 
-void printMatrix(uint8_t ** matriz, int rows, int cols) {
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            printf("%d ", matriz[i][j]);
-        }
-        printf("\n");
-    }
-}

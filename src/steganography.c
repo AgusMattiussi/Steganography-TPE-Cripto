@@ -54,7 +54,7 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
 
             /* Verifies host image's size is equal to the original's size */
             size_t imageSize = current->info->biSizeImage;
-            if(checkImageSize(original->info->biSizeImage, imageSize)){
+            if(original->info->biSizeImage != imageSize){
                 printf("Error: File %s has a different size\n",  entry->d_name);
                 return EXIT_FAILURE;
             }

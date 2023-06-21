@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    if(strcmp("bmp", get_filename_ext(argv[2])) != 0){
+    if(strcmp("bmp", getExtension(argv[2])) != 0){
         printf("Error: File must have .bmp extension\n");
         return EXIT_FAILURE;
     }

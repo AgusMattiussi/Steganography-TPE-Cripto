@@ -7,12 +7,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define GROUP_MOD 251
+#define GROUP_MOD 251                   
 #define MIN_K 3
 #define MAX_K 8
-#define MOD_INVERSE(x) (modInverses[(x)])
-#define IS_FILE(x) ((x) == DT_REG)
+#define MOD_INVERSE(x) (modInverses[(x)])   // Gets modular inverse for x
+#define IS_FILE(x) ((x) == DT_REG)          // Checks if entry x is a file
 
+/* Modular inverses table for GROUP_MOD = 251 */
 static const uint8_t modInverses[GROUP_MOD] = {
     0, 1, 126, 84, 63, 201, 42, 36, 157, 28, 226, 137, 21, 58, 18, 67, 204,
     192, 14, 185, 113, 12, 194, 131, 136, 241, 29, 93, 9, 26, 159, 81, 102,
@@ -32,24 +33,22 @@ static const uint8_t modInverses[GROUP_MOD] = {
     193, 230, 114, 25, 223, 94, 215, 209, 50, 188, 167, 125, 250
 };
 
-const char *get_filename_ext(const char *filename);
+/* Gets file extension from '*filename' */
+const char *getExtension(const char *filename);
 
-const int checkFileCount(DIR * dir);
+/* Counts files in the given directory*/
+int checkFileCount(DIR * dir);
 
-const int checkImageSize(long size1, long size2);
-
+/* Gets full relative path for '*entryName' file in '*dirName' directory */
 char * getFullPath(const char *dirName, char *entryName);
 
+/* Allocates heap memory for a byte matrix of rows*cols size */
 uint8_t ** allocateMatrix(int rows, int cols);
 
-void freeMatrix(uint8_t ** m, long rows);
+/* Frees matrix of 'rows' rows */
+void freeMatrix(uint8_t ** m, int rows);
 
-void print_binary(unsigned int number);
-
-void print_binary_wrapper(unsigned int number);
-
+/* Gets the positive modular value of 'n' in modulus GROUP_MOD */
 uint8_t positiveMod(int n);
-
-void printMatrix(uint8_t ** matriz, int rows, int cols);
 
 #endif
