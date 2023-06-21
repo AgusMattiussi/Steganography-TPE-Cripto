@@ -7,6 +7,9 @@
         "utils.h": "c",
         "gauss.h": "c",
         "reconstruct.h": "c",
-        "stdlib.h": "c"
+        "stdlib.h": "c",
+        "dirent.h": "c",
+        "types.h": "c",
+        "stdint.h": "c"
     }
 }

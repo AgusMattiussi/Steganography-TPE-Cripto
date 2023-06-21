@@ -11,6 +11,7 @@
 #include "utils.h"
 #include "gauss.h"
 
+/* Reconstruct image in 'outputName' file using images in 'sourceDirName'*/
 void reconstruct(char * outputName, char * sourceDirName, int k);
 
 #endif

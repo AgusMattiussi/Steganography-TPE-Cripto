@@ -11,6 +11,7 @@
 #define MIN_K 3
 #define MAX_K 8
 #define MOD_INVERSE(x) (modInverses[(x)])
+#define IS_FILE(x) ((x) == DT_REG)
 
 static const uint8_t modInverses[GROUP_MOD] = {
     0, 1, 126, 84, 63, 201, 42, 36, 157, 28, 226, 137, 21, 58, 18, 67, 204,
