@@ -10,11 +10,13 @@ uint8_t ** generateShadows(FILE * image, int k, int n, long imageSize, long * sh
 
     uint8_t ** vm = allocateMatrix(t, n);
     if(vm == NULL){
+        printf("Error: Could not allocate memory\n");
         return NULL;
     }
     
     uint8_t ** vd = allocateMatrix(t, n);
     if(vd == NULL){
+        printf("Error: Could not allocate memory\n");
         freeMatrix(vm, t);
         return NULL;
     }
@@ -35,10 +37,12 @@ uint8_t ** generateShadows(FILE * image, int k, int n, long imageSize, long * sh
                 shadows[j][i+1] = vd[i/2][j];
             }
         }
+    } else {
+        printf("Error: Could not allocate memory\n");
     }
+
     freeMatrix(vm, t);
     freeMatrix(vd, t); 
-
     return shadows;
 }
 

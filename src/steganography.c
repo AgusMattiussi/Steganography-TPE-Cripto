@@ -62,17 +62,20 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
         if (IS_FILE(entry->d_type)) {
             char * fullPath = getFullPath(dirName, entry->d_name);
             if(fullPath == NULL){
+                printf("Error: Could not allocate memory\n");
                 break;
             }
 
             FILE * participant = fopen(fullPath, "r+");
             if(participant == NULL){
+                printf("Error: Could not open file %s\n", fullPath);
                 free(fullPath);
                 break;
             }
 
             BMP * current = createBMP(participant);
             if(participant == NULL){
+                printf("Error: Could not allocate memory\n");
                 fclose(participant);
                 free(fullPath);
                 break;
@@ -81,6 +84,7 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
             /* Verifies host image's size is equal to the original's size */
             size_t imageSize = current->info->biSizeImage;
             if(original->info->biSizeImage != imageSize){
+                printf("Error: Host images must have the same size of the secret image\n");
                 freeBMP(current);
                 fclose(participant);
                 free(fullPath);
@@ -90,6 +94,7 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
             /* Copies image bytes into buffer for easier modification */
             uint8_t * imageBuffer = getImageDataCopy(current);
             if(imageBuffer == NULL){
+                printf("Error: Could not allocate memory\n");
                 freeBMP(current);
                 fclose(participant);
                 free(fullPath);
@@ -104,6 +109,7 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
             
             /* Overwrite image (from offset) with encoded bytes */
             if(fwrite(imageBuffer, sizeof(uint8_t), imageSize, current->file) < imageSize){
+                printf("Error: Could not finish writing file %s\n", fullPath);
                 free(imageBuffer);
                 freeBMP(current);
                 fclose(participant);
