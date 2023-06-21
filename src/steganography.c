@@ -42,10 +42,16 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
 
     long shadowLen;
     BMP * original = createBMP(file);
-    uint8_t ** shadows = generateShadows(file, k, n, original->info->biSizeImage, &shadowLen);
+    if(original->info->biSizeImage % (2*k-2) != 0){
+        printf("Error: Image size must be divisible by 2*k-2 = %d", 2*k-2);
+        freeBMP(original);
+        closedir(dir);
+        return EXIT_FAILURE;
+    }
 
+    uint8_t ** shadows = generateShadows(file, k, n, original->info->biSizeImage, &shadowLen);
     if(shadows == NULL){
-        printf("Error: Could not generate shadows for hiding secret\n");
+        printf("Error: Could not generate shadows for hiding the secret\n");
         return EXIT_FAILURE;
     }
     

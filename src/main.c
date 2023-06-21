@@ -23,13 +23,13 @@
 int main(int argc, char *argv[]) {
     srand(time(0));
 
-    char * filename;
+    char * filename, * dirname;
     DIR* dir;
     FILE* file; 
     int k, n = 0;
 
     if(argc != 5){
-        printf("Error: Wrong number of arguments\n");
+        printf("Error: Wrong number of arguments. Should be 4.\n");
         return EXIT_FAILURE;
     }
 
@@ -43,9 +43,11 @@ int main(int argc, char *argv[]) {
         printf("Error: File must have .bmp extension\n");
         return EXIT_FAILURE;
     }
-    filename = argv[2];
 
-    dir = opendir(argv[4]);
+    filename = argv[2];
+    dirname = argv[4];
+
+    dir = opendir(dirname);
     if(dir == NULL){
         printf("Error: Directory does not exist\n");
         return EXIT_FAILURE;
@@ -64,14 +66,14 @@ int main(int argc, char *argv[]) {
             printf("Error: Image file does not exist\n");
             return EXIT_FAILURE;
         }
-        if(hideSecret(argv[4], file, n, k) == EXIT_FAILURE){
+        if(hideSecret(dirname, file, n, k) == EXIT_FAILURE){
             printf("Error: Could not hide the secret\n");
             fclose(file);
             return EXIT_FAILURE;
         }
         fclose(file);
     } else if (strcmp(argv[1], "r") == 0){
-        if(reconstruct(filename, argv[4], k) == EXIT_FAILURE){
+        if(reconstruct(filename, dirname, k) == EXIT_FAILURE){
             printf("Error: Could not recover secret\n");
             return EXIT_FAILURE;
         }

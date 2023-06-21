@@ -5,30 +5,41 @@ static uint8_t generateB(uint8_t a, int r);
 static int generateR();
 
 uint8_t ** generateShadows(FILE * image, int k, int n, long imageSize, long * shadowLen) {
-    int retValue = EXIT_SUCCESS;
     int t = imageSize/(2*k - 2);
     *shadowLen = 2*t;
 
     uint8_t ** vm = allocateMatrix(t, n);
+    if(vm == NULL){
+        return NULL;
+    }
+    
     uint8_t ** vd = allocateMatrix(t, n);
+    if(vd == NULL){
+        freeMatrix(vm, t);
+        return NULL;
+    }
 
     for (int i = 0; i < t; i++) {
         if(blockSubshadow(image, vm, vd, k, n, i) == EXIT_FAILURE){
-            retValue = EXIT_FAILURE;
+            freeMatrix(vm, t);
+            freeMatrix(vd, t);
+            return NULL;
         }
     }
 
     uint8_t ** shadows = allocateMatrix(n, *shadowLen);
-    for (int j = 0; j < n; j++) {
-        for (int i = 0; i < *shadowLen; i += 2) {
-            shadows[j][i] = vm[i/2][j];
-            shadows[j][i+1] = vd[i/2][j];
+    if(shadows != NULL){
+        for (int j = 0; j < n; j++) {
+            for (int i = 0; i < *shadowLen; i += 2) {
+                shadows[j][i] = vm[i/2][j];
+                shadows[j][i+1] = vd[i/2][j];
+            }
         }
     }
     freeMatrix(vm, t);
     freeMatrix(vd, t); 
 
-    return retValue == EXIT_SUCCESS? shadows : NULL;
+    return shadows;
 }
 
 void freeShadows(uint8_t ** shadows, long shadowLen){

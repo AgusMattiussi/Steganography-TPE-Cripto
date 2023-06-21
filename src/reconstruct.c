@@ -86,7 +86,7 @@ int reconstruct(char * outputName, char * sourceDirName, int k){
 
         /* Checks for cheating */
         if(checkRi(a_i[0], a_i[1], b_i[0], b_i[1]) == 0){
-            printf("Error: Cheating detected\n", i);
+            printf("Error: Cheating detected\n");
             return EXIT_FAILURE;
         }
         
