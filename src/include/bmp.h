@@ -63,4 +63,6 @@ void setToOffset(BMP * bmp);
 
 void copyHeader(uint8_t * dest, BMP * bmp);
 
+uint8_t * getImageDataCopy(BMP * bmp);
+
 #endif

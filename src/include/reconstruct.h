@@ -10,6 +10,7 @@
 #include "bmp.h"
 #include "utils.h"
 #include "gauss.h"
+#include "steganography.h"
 
 /* Reconstruct image in 'outputName' file using images in 'sourceDirName'*/
 void reconstruct(char * outputName, char * sourceDirName, int k);

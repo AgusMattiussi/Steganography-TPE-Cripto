@@ -127,31 +127,22 @@ static void recoverV(uint8_t ** vm, uint8_t ** vd, uint8_t ** shadows, int k, in
 
 /* Recovers shadow bytes stored in each file and stores them in *shadow */
 static void recoverShadow(FILE * participant, int k, uint8_t * shadow, long shadowLen){
-    uint8_t lsbValue, lsbMask, bytesToRead;
+    lsb_params_t lsb = k <= 4 ? LSB4 : LSB2;
 
-    if(k <= 4){
-        lsbValue = 4;
-        lsbMask = 0x0F; // 0000 1111
-        bytesToRead = 2; 
-    } else {
-        lsbValue = 2;
-        lsbMask = 0x03; // 0000 0011
-        bytesToRead = 4;
-    }
-
-    uint8_t buf[k];
+    uint8_t buf[lsb.bytesToRead]; // Stores bytes from the image needed to reconstruct shadow
     for (long i = 0; i < shadowLen; i++){
         uint8_t shadowByte = 0x00;
 
-        if(fread(buf, sizeof(uint8_t), bytesToRead, participant) < bytesToRead){
+        if(fread(buf, sizeof(uint8_t), lsb.bytesToRead, participant) < lsb.bytesToRead){
             // TODO: Manejar error
             printf("Could not completely read file\n");
             return;
         }
 
-        for (int j = 0; j < bytesToRead; j++){
-            shadowByte <<= lsbValue;
-            shadowByte += buf[j] & lsbMask;
+        /* Recovers shadow byte shifting image bytes */
+        for (int j = 0; j < lsb.bytesToRead; j++){
+            shadowByte <<= lsb.doff;
+            shadowByte += buf[j] & lsb.mask;
         }
         
         shadow[i] = shadowByte;

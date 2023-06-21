@@ -1,6 +1,11 @@
 #include "include/steganography.h"
 
-static void encoder(lsb_params_t params, uint8_t* image, size_t imageSize, size_t offset, uint8_t* shadows, size_t shadowsSize) {
+static void lsb2Encode(uint8_t *image, size_t imageSize, uint8_t *shadows, size_t shadowsSize);
+static void lsb4Encode(uint8_t *image, size_t imageSize, uint8_t *shadows, size_t shadowsSize);
+static void encoder(lsb_params_t params, uint8_t* image, size_t imageSize, uint8_t* shadows, size_t shadowsSize);
+
+/* Encodes shadow bytes into image bytes according to LSB2 or LSB4 */
+static void encoder(lsb_params_t params, uint8_t* image, size_t imageSize, uint8_t* shadows, size_t shadowsSize) {
     uint8_t mask = params.mask;
     int off = params.ioff;
 
@@ -10,7 +15,6 @@ static void encoder(lsb_params_t params, uint8_t* image, size_t imageSize, size_
         image[i] &= ~mask;
         image[i] |= shadowBit;
 
-
         off -= params.doff;
         if (off < 0) {
             off += 8;
@@ -19,12 +23,14 @@ static void encoder(lsb_params_t params, uint8_t* image, size_t imageSize, size_
     }
 }
 
-void lsb2Encode(uint8_t *image, size_t imageSize, size_t offset, uint8_t *shadows, size_t shadowsSize) {
-    encoder(LSB2, image, imageSize, offset, shadows, shadowsSize);
+/* Encodes according to LSB2 */
+static void lsb2Encode(uint8_t *image, size_t imageSize, uint8_t *shadows, size_t shadowsSize) {
+    encoder(LSB2, image, imageSize, shadows, shadowsSize);
 }
 
-void lsb4Encode(uint8_t *image, size_t imageSize, size_t offset, uint8_t *shadows, size_t shadowsSize) {
-    encoder(LSB4, image, imageSize, offset, shadows, shadowsSize);
+/* Encodes according to LSB4 */
+static void lsb4Encode(uint8_t *image, size_t imageSize, uint8_t *shadows, size_t shadowsSize) {
+    encoder(LSB4, image, imageSize, shadows, shadowsSize);
 }
 
 int hideSecret(const char *dirName, FILE *file, int n, int k) {
@@ -34,52 +40,43 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
         return EXIT_FAILURE;
     }
 
-    long width, heigth, shadowLen;
-
+    long shadowLen;
     BMP * original = createBMP(file);
-    width = original->info->biWidth;
-    heigth = original->info->biHeight;
-
-    uint8_t ** shadows = generateShadows(file, k, n, width, heigth, &shadowLen);
+    uint8_t ** shadows = generateShadows(file, k, n, original->info->biSizeImage, &shadowLen);
     
     struct dirent * entry;
-    int j=0;
-
-    char *fullPath;
-
+    int processed = 0;
     while ((entry = readdir(dir)) != NULL) {
-        if (entry->d_type == DT_REG) {
-            BMP * current;
-
-            fullPath = getFullPath(dirName, entry->d_name);
-            
+        if (IS_FILE(entry->d_type)) {
+            char * fullPath = getFullPath(dirName, entry->d_name);
             FILE * participant = fopen(fullPath, "r+");
-            current = createBMP(participant);
+            BMP * current = createBMP(participant);
 
+            /* Verifies host image's size is equal to the original's size */
             size_t imageSize = current->info->biSizeImage;
-            
-            if(checkImageSize(width*heigth, imageSize)){
+            if(checkImageSize(original->info->biSizeImage, imageSize)){
                 printf("Error: File %s has a different size\n",  entry->d_name);
                 return EXIT_FAILURE;
             }
 
-            uint8_t * imageBuffer = malloc(sizeof(uint8_t) * imageSize);
-            fread(imageBuffer, sizeof(uint8_t), imageSize, current->file);
+            /* Copies image bytes into buffer to modify easily */
+            uint8_t * imageBuffer = getImageDataCopy(current);
 
-            if(k > LSB_MODE){
-                lsb2Encode(imageBuffer, imageSize, 0, shadows[j], shadowLen);
-            } else {
-                lsb4Encode(imageBuffer, imageSize, 0, shadows[j], shadowLen);
-            }
-
-            setToOffset(current);
+            /* Encode according to k */
+            if(k > LSB_MODE)
+                lsb2Encode(imageBuffer, imageSize, shadows[processed], shadowLen);
+            else 
+                lsb4Encode(imageBuffer, imageSize, shadows[processed], shadowLen);
+            
+            /* Overwrite image (from offset) with encoded bytes */
             fwrite(imageBuffer, sizeof(uint8_t), imageSize, current->file);
+            /* Write image processing order (x value) to bfReserved1 byte */
+            modifyReservedBit(current, processed + 1);
 
-            modifyReservedBit(current, j+1);
-
-            j++;
-
+            processed++;
+            fclose(participant);
             free(fullPath);
+            free(imageBuffer);
             freeBMP(current);
         }
     }

@@ -148,6 +148,13 @@ void modifyReservedBit(BMP * bmp, unsigned short value){
     modifyFileReservedBit(bmp->file, value);
 }
 
+static void modifyFileReservedBit(FILE * image, unsigned short value){
+    long currentOffset = ftell(image);
+    fseek(image, BF_RESERVED_1_POS, SEEK_SET);
+    fwrite(&value, sizeof(unsigned short), 1, image);
+    fseek(image, currentOffset, SEEK_SET);
+}
+
 void copyHeader(uint8_t * dest, BMP * bmp){
     long currentOffset = ftell(bmp->file);
     fseek(bmp->file, 0, SEEK_SET);
@@ -155,11 +162,15 @@ void copyHeader(uint8_t * dest, BMP * bmp){
     fseek(bmp->file, currentOffset, SEEK_SET);
 }
 
-static void modifyFileReservedBit(FILE * image, unsigned short value){
-    long currentOffset = ftell(image);
-    fseek(image, BF_RESERVED_1_POS, SEEK_SET);
-    fwrite(&value, sizeof(unsigned short), 1, image);
-    fseek(image, currentOffset, SEEK_SET);
+uint8_t * getImageDataCopy(BMP * bmp){
+    uint8_t * copy = malloc(sizeof(uint8_t) * bmp->info->biSizeImage);
+    long currentOffset = ftell(bmp->file);
+
+    fseek(bmp->file, 0, SEEK_SET);
+    fread(copy, sizeof(uint8_t), bmp->info->biSizeImage, bmp->file);
+    fseek(bmp->file, currentOffset, SEEK_SET);
+
+    return copy;
 }
 
 void printBmpInfo(BMP * bmp){ 

@@ -4,8 +4,8 @@ static void blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, in
 static int generateB(uint8_t a, int r);
 static int generateR();
 
-uint8_t ** generateShadows(FILE * image, int k, int n, long width, long height, long * shadowLen) {
-    int t = (width*height) / (2*k - 2);
+uint8_t ** generateShadows(FILE * image, int k, int n, long imageSize, long * shadowLen) {
+    int t = imageSize/(2*k - 2);
     *shadowLen = 2*t;
 
     uint8_t ** vm = allocateMatrix(t, n);

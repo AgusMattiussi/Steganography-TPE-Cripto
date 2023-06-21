@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include "utils.h"
 
-uint8_t ** generateShadows(FILE * image, int k, int n, long width, long height, long * shadowLen);
+uint8_t ** generateShadows(FILE * image, int k, int n, long imageSize, long * shadowLen);
 
 void freeShadows(uint8_t ** shadows, long shadowLen);
 
