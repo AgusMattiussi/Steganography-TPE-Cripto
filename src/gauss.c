@@ -7,6 +7,7 @@ uint8_t * gauss(uint8_t * y, uint8_t * x, int dim){
     /* Allocates space for the extended matrix */
     uint8_t ** gaussMatrix = allocateMatrix(dim, dim + 1);
 
+    /* Fills matrix with equations */
     for (int i = 0; i < dim; i++){
         for (int j = 0; j < dim; j++){
             gaussMatrix[i][j] = positiveMod(pow(x[i], j));

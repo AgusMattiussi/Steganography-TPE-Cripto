@@ -26,9 +26,7 @@ typedef struct fileHeader {
     unsigned long  bfOffBits;    /* 4 bytes */
 } fileHeader;
 
-/*
- * Bitmap info header (Windows)
- */
+/* Bitmap info header (Windows) */
 typedef struct BMPInfo {
     unsigned int   biSize;          /* 4 bytes */
     long           biWidth;         /* 4 bytes */
@@ -49,20 +47,25 @@ typedef struct BMP {
     FILE * file;
 } BMP;
 
+/* Creates a BMP structure from an image file */
 BMP * createBMP(FILE * image);
 
+/* Frees resources in a BMP structure */
 void freeBMP(BMP * bmp);
 
+/* Modifies bfReserved1 byte */
 void modifyReservedBit(BMP * bmp, unsigned short value);
 
+/* Prints a bmp's file information */
 void printBmpInfo(BMP * bmp);
 
-void setFileToBMPOffset(FILE * image, BMP * bmp);
-
+/* Sets a file's offset to the value where the image bytes start */
 void setToOffset(BMP * bmp);
 
+/* Copies the bytes from a bmp file's header to '*dest' */
 void copyHeader(uint8_t * dest, BMP * bmp);
 
+/* Returns a copy of the bytes of a bmp file's image */
 uint8_t * getImageDataCopy(BMP * bmp);
 
 #endif

@@ -1,8 +1,6 @@
 /*
- *
- * Readig bitmap image informations.
+ * Read bitmap image information
  * source: https://gist.github.com/takatoh/9d141ee9a7cc8a1f4a5e#file-bmp-c
- *
  */
 
 #include "include/bmp.h"
@@ -70,9 +68,7 @@ static fileHeader * ReadBMFileHeader(FILE *fp) {
 }
 
 
-/*
- * Read bitmap info header (Windows bitmap)
- */
+/* Read bitmap info header (Windows bitmap) */
 static BMPInfo * ReadBMInfoHeader(FILE *fp){
     BMPInfo *header;
     unsigned int   headersize;
@@ -136,10 +132,6 @@ static BMPInfo * ReadBMInfoHeader(FILE *fp){
     return header;
 }
 
-void setFileToBMPOffset(FILE * image, BMP * bmp){
-    fseek(image, bmp->fileHeader->bfOffBits, SEEK_SET);
-}
-
 void setToOffset(BMP * bmp){
     fseek(bmp->file, bmp->fileHeader->bfOffBits, SEEK_SET);
 }
@@ -166,7 +158,7 @@ uint8_t * getImageDataCopy(BMP * bmp){
     uint8_t * copy = malloc(sizeof(uint8_t) * bmp->info->biSizeImage);
     long currentOffset = ftell(bmp->file);
 
-    fseek(bmp->file, 0, SEEK_SET);
+    fseek(bmp->file, bmp->fileHeader->bfOffBits, SEEK_SET);
     fread(copy, sizeof(uint8_t), bmp->info->biSizeImage, bmp->file);
     fseek(bmp->file, currentOffset, SEEK_SET);
 

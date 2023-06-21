@@ -59,7 +59,7 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
                 return EXIT_FAILURE;
             }
 
-            /* Copies image bytes into buffer to modify easily */
+            /* Copies image bytes into buffer for easier modification */
             uint8_t * imageBuffer = getImageDataCopy(current);
 
             /* Encode according to k */
