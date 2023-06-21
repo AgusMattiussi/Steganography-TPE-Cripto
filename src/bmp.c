@@ -131,10 +131,14 @@ static BMPInfo * ReadBMInfoHeader(FILE *fp){
 }
 
 void setToOffset(BMP * bmp){
+    if(bmp == NULL)
+        return;
     fseek(bmp->file, bmp->fileHeader->bfOffBits, SEEK_SET);
 }
 
 void modifyReservedBit(BMP * bmp, unsigned short value){
+    if(bmp == NULL)
+        return;
     modifyFileReservedBit(bmp->file, value);
 }
 
@@ -146,6 +150,9 @@ static void modifyFileReservedBit(FILE * image, unsigned short value){
 }
 
 void copyHeader(uint8_t * dest, BMP * bmp){
+    if(bmp == NULL || dest == NULL)
+        return;
+
     long currentOffset = ftell(bmp->file);
     fseek(bmp->file, 0, SEEK_SET);
     fread(dest, sizeof(uint8_t), bmp->fileHeader->bfOffBits, bmp->file);
@@ -153,13 +160,17 @@ void copyHeader(uint8_t * dest, BMP * bmp){
 }
 
 uint8_t * getImageDataCopy(BMP * bmp){
+    if(bmp == NULL)
+        return NULL;
+
     uint8_t * copy = malloc(sizeof(uint8_t) * bmp->info->biSizeImage);
-    long currentOffset = ftell(bmp->file);
+    if(copy != NULL){
+        long currentOffset = ftell(bmp->file);
 
-    fseek(bmp->file, bmp->fileHeader->bfOffBits, SEEK_SET);
-    fread(copy, sizeof(uint8_t), bmp->info->biSizeImage, bmp->file);
-    fseek(bmp->file, currentOffset, SEEK_SET);
-
+        fseek(bmp->file, bmp->fileHeader->bfOffBits, SEEK_SET);
+        fread(copy, sizeof(uint8_t), bmp->info->biSizeImage, bmp->file);
+        fseek(bmp->file, currentOffset, SEEK_SET);
+    }
     return copy;
 }
 
