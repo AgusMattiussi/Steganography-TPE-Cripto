@@ -19,28 +19,32 @@ int checkFileCount(DIR * dir){
             count++;
         }
     }
-
+    
     return count;   
 }
 
 char * getFullPath(const char *dirName, char *entryName){
     int dirNameLen = strlen(dirName);
-
     char *fullPath = calloc(dirNameLen + strlen(entryName) + 2, sizeof(char));
-    
-    strcat(fullPath, dirName);
-    if(fullPath[dirNameLen-1] != '/'){
-        strcat(fullPath, "/");
+    if(fullPath != NULL){
+        strcat(fullPath, dirName);
+        if(fullPath[dirNameLen-1] != '/'){
+            strcat(fullPath, "/");
+        }
+        strcat(fullPath, entryName);
     }
-    strcat(fullPath, entryName);
     
     return fullPath;
 }
 
 uint8_t ** allocateMatrix(int rows, int cols){
     uint8_t ** m = calloc(rows, sizeof(uint8_t *));
-    for (int i = 0; i < rows; i++){
-        m[i] = calloc(cols, sizeof(uint8_t));
+    if(m != NULL){
+        for (int i = 0; i < rows; i++){
+            m[i] = calloc(cols, sizeof(uint8_t));
+            if(m[i] == NULL)
+                freeMatrix(m, i);
+        }
     }
     return m;
 }
