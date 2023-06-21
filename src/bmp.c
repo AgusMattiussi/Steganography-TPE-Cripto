@@ -7,7 +7,6 @@
 
 #include "include/bmp.h"
 
-
 static BMPInfo *ReadBMInfoHeader(FILE *fp);
 static fileHeader *ReadBMFileHeader(FILE *fp);
 static void modifyFileReservedBit(FILE * image, unsigned short value);
@@ -163,8 +162,7 @@ static void modifyFileReservedBit(FILE * image, unsigned short value){
     fseek(image, currentOffset, SEEK_SET);
 }
 
-void printBmpInfo(BMP * bmp){
-    
+void printBmpInfo(BMP * bmp){ 
     printf("File type          = %s\n", bmp->fileHeader->bfType);
     printf("File size          = %d bytes\n", bmp->fileHeader->bfSize);
     printf("Reserved bit 1     = %d bytes\n", bmp->fileHeader->bfReserved1);
@@ -181,9 +179,7 @@ void printBmpInfo(BMP * bmp){
     printf("X pixels per meter = %ld\n", bmp->info->biXPixPerMeter);
     printf("Y pixels per meter = %ld\n", bmp->info->biYPixPerMeter);
     printf("Color used         = %ld colors\n", bmp->info->biClrUsed);
-
 }
-
 
 /*
  * Read 2 bytes in little endian

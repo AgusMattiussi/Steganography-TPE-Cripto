@@ -10,6 +10,24 @@
 
 #define LSB_MODE 4
 
+typedef struct {
+  uint8_t mask;
+  uint8_t ioff;
+  uint8_t doff;
+} lsb_params_t;
+
+static const lsb_params_t LSB4 = { 
+    .mask = 0x0F, 
+    .ioff = 4, 
+    .doff = 4 
+};
+
+static const lsb_params_t LSB2 = {
+    .mask = 0x03, 
+    .ioff = 6, 
+    .doff = 2
+};
+
 void lsb2Encode(uint8_t *image, size_t imageSize, size_t offset, uint8_t *shadows, size_t shadowsSize);
 
 void lsb4Encode(uint8_t *image, size_t imageSize, size_t offset, uint8_t *shadows, size_t shadowsSize);
