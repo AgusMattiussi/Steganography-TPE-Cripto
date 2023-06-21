@@ -15,8 +15,8 @@ uint8_t * gauss(uint8_t * y, uint8_t * x, int dim){
     }
     
     triangulate(gaussMatrix, dim);
-
     uint8_t * solutions = solve(gaussMatrix, dim);
+
     freeMatrix(gaussMatrix, dim);
     
     return solutions;
@@ -35,8 +35,8 @@ void triangulate(uint8_t ** m, int dim){
         /* A cada fila, le resta un multiplo de la fila actual para anular
             su primer coeficiente */
         for (int j = i + 1; j < dim; j++){
+            int ratio = m[j][i];
             for (int k = i; k < dim + 1; k++){
-                int ratio = m[j][i];
                 m[j][k] = positiveMod(m[j][k] - ratio * m[i][k]);
             }
         }

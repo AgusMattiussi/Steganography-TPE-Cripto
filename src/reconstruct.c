@@ -82,17 +82,21 @@ void reconstruct(char * outputName, char * sourceDirName, int k){
     FILE * outputFile = fopen(outputName, "w+");
     fwrite(outputHeader, sizeof(uint8_t), offset, outputFile);
 
+
     for (int i = 0; i < t; i++){
+
         uint8_t * a_i = gauss(vm[i], preimages, k);
         uint8_t * b_i = gauss(vd[i], preimages, k);
 
         //TODO: Check cheating
+        if(checkRi(a_i[0], a_i[1], b_i[0], b_i[1]) == 0){
+            printf("Cheating detected! (i=%d)\n ", i);
+        }
         
+    
         fwrite(a_i, sizeof(uint8_t), k, outputFile);
-        fwrite(&(b_i[2]), sizeof(uint8_t), k-2, outputFile);
+        fwrite(b_i + 2, sizeof(uint8_t), k-2, outputFile);
 
-        free(a_i);
-        free(b_i);
     }
 
     fclose(outputFile);

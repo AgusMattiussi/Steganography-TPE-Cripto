@@ -6,6 +6,7 @@
         "steganography.h": "c",
         "utils.h": "c",
         "gauss.h": "c",
-        "reconstruct.h": "c"
+        "reconstruct.h": "c",
+        "stdlib.h": "c"
     }
 }
