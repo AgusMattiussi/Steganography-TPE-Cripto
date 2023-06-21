@@ -31,9 +31,7 @@ void freeBMP(BMP * bmp){
     free(bmp);
 }
 
-/*
- * Read bitmap file header
- */
+/* Read bitmap file header */
 static fileHeader * ReadBMFileHeader(FILE *fp) {
     fileHeader *header;
     char           filetype[3] = {'\0', '\0', '\0'};
@@ -184,9 +182,7 @@ void printBmpInfo(BMP * bmp){
     printf("Color used         = %ld colors\n", bmp->info->biClrUsed);
 }
 
-/*
- * Read 2 bytes in little endian
- */
+/* Read 2 bytes in little endian */
 static unsigned short ReadLE2(FILE *fp) {
     unsigned char buf[2];
     unsigned short result = 0;
@@ -200,9 +196,7 @@ static unsigned short ReadLE2(FILE *fp) {
     return result;
 }
 
-/*
- * Read 4 bytes in little endian
- */
+/* Read 4 bytes in little endian */
 static unsigned int ReadLE4(FILE *fp) {
     unsigned char buf[4];
     unsigned int result = 0;

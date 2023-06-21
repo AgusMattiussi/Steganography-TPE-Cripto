@@ -7,8 +7,10 @@
 #include <stdio.h>
 #include "utils.h"
 
+/* Generates shadows for an inputted secret image */
 uint8_t ** generateShadows(FILE * image, int k, int n, long imageSize, long * shadowLen);
 
+/* Frees shadows resources */
 void freeShadows(uint8_t ** shadows, long shadowLen);
 
 #endif

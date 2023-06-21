@@ -46,6 +46,7 @@ int hideSecret(const char *dirName, FILE *file, int n, int k) {
     
     struct dirent * entry;
     int processed = 0;
+    /* Hides a part of the secret in each entry */
     while ((entry = readdir(dir)) != NULL) {
         if (IS_FILE(entry->d_type)) {
             char * fullPath = getFullPath(dirName, entry->d_name);

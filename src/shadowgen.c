@@ -28,21 +28,20 @@ uint8_t ** generateShadows(FILE * image, int k, int n, long imageSize, long * sh
     return shadows;
 }
 
-/*
- *  Para recorrer cada bloque de la imagen (matriz) como si fuera unidimensional (array),
- *  llevo un iterador total 'iter' y recorro la imagen de la forma image[iter/width][iter%width]
-*/
-static void blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, int n, int blockNum) {
-    size_t aux = 0;
+void freeShadows(uint8_t ** shadows, long shadowLen){
+    freeMatrix(shadows, shadowLen);
+}
 
+/* Computes sub-shadows v_ij = {vm[i][j], vd[i][j]} */
+static void blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, int n, int blockNum) {
     uint64_t resultF, resultG;
     uint8_t buffer[MAX_K] = {0};
 
-    aux = fread(buffer, sizeof(uint8_t), k, image);
-    if(aux < k){
-        printf("Error: leyo %ld en lugar de %d(k)\n", aux, k);
+    if(fread(buffer, sizeof(uint8_t), k, image) < k){
+        printf("Error: leyo menos de %d(k)\n", k);
     }
-
+    
+    /* Evaluates the a_i pixels polynomial for each j and stores it in vm */
     for (int j = 1; j <= n; j++) {
         resultF = 0;
         for (int d = 0; d < k; d++) {       
@@ -51,15 +50,16 @@ static void blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, in
         vm[blockNum][j-1] = resultF % GROUP_MOD;
     }
 
+    /* Generate b_i0 and b_i1 */
     int r = generateR();
     uint8_t b0 = generateB(buffer[0], r);
     uint8_t b1 = generateB(buffer[1], r);
     
-    fread(buffer, sizeof(uint8_t), k-2, image);
-    if(aux < k-2){
-        printf("Error: leyo %ld en lugar de %d(k-2)\n", aux, k-2);
+    if(fread(buffer, sizeof(uint8_t), k-2, image) < k-2){
+        printf("Error: leyo menos de %d(k-2)\n", k-2);
     }
 
+    /* Evaluates the b_i pixels polynomial for each j and stores it in vd */
     for (int j = 1; j <= n; j++) {
         resultG = b0 + b1*j;
         for (int d = 2; d < k; d++) {
@@ -70,17 +70,16 @@ static void blockSubshadow(FILE * image, uint8_t ** vm, uint8_t ** vd, int k, in
 
 }
 
+/* Used for generating b_0 and b_1 for each block */
 static int generateB(uint8_t a, int r) {
     uint8_t aux = a == 0 ? 1 : a;
     return positiveMod(-(r*aux));
 }
 
-// [1, 250]
+/* Generates a random integer r in the interval [1, 250]*/
 static int generateR() {
     return positiveMod(rand() % (GROUP_MOD-1)) + 1;
 }
 
-void freeShadows(uint8_t ** shadows, long shadowLen){
-    freeMatrix(shadows, shadowLen);
-}
+
 
